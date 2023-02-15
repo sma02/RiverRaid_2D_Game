@@ -6,9 +6,21 @@ using namespace std;
 
 // globals
 #define numOfCannonBullets 100
+#define numOfBattleShips 100
 int playerCannonX[numOfCannonBullets];
 int playerCannonY[numOfCannonBullets];
 int currentCannonBulletsCount = 0;
+int mazeMoveCount = 0;
+int mazeBattleShipCreate = 0;
+
+int battleShipsX[numOfBattleShips];
+int battleShipsY[numOfBattleShips];
+int battleShipRocketX[numOfBattleShips];
+int battleShipRocketY[numOfBattleShips];
+int battleShipRocketReady[numOfBattleShips];
+int currentBattleShipRocketsCount = 0;
+int currentBattleShipsCount = 0;
+
 string menuItems[] = {"start game", "options", "exit"};
 int playerX = 20, playerY = 15;
 
@@ -27,10 +39,18 @@ void movePlayerUp();
 void movePlayerDown();
 void movePlayerLeft();
 void movePlayerRight();
+void drawPlayer(int x, int y);
 void erasePlayer(int x, int y);
+void eraseGeneric(int x, int y, int rows, int cols);
+void createBattleShip();
 void createCannonBullet(int x, int y);
 void cannonBulletsMovement();
+void battleShipHandler();
+void printBattleShip(int x, int y);
+void battleShipRocketCreate(int x, int y);
 void removeElementFromArray(int arr1[], int arr2[], int elementIndex, int arraySize);
+void init();
+void moveMazeAndGameElements();
 void startGame();
 
 int main()
@@ -46,6 +66,13 @@ int main()
         startGame();
     }
 }
+void init()
+{
+    for (int i = 0; i < numOfBattleShips; i++)
+    {
+        battleShipRocketReady[i] = 0;
+    }
+}
 void removeElementFromArray(int arr1[], int arr2[], int elementIndex, int arraySize)
 {
     for (int i = elementIndex; i < arraySize; i++)
@@ -56,7 +83,7 @@ void removeElementFromArray(int arr1[], int arr2[], int elementIndex, int arrayS
 }
 void createCannonBullet(int x, int y)
 {
-    //x += 3;
+    // x += 3;
     y -= 3;
     gotoxy(x, y);
     cout << "|";
@@ -84,25 +111,124 @@ void cannonBulletsMovement()
         }
     }
 }
+void moveMazeAndGameElements()
+{
+    mazeMoveCount++;
+    mazeBattleShipCreate++;
+    if (mazeBattleShipCreate == 20)
+    {
+        createBattleShip();
+        mazeBattleShipCreate = 0;
+    }
+    if (mazeMoveCount == 4)
+    {
+
+        for (int i = currentBattleShipsCount - 1; i >= 0; i--)
+        {
+            if (battleShipsY[i] < 20)
+            {
+                eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
+                battleShipsY[i]++;
+                printBattleShip(battleShipsX[i], battleShipsY[i]);
+            }
+            else
+            {
+                gotoxy(battleShipsX[i], 20);
+                eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
+                removeElementFromArray(battleShipsX, battleShipsY, i, currentBattleShipsCount);
+                currentBattleShipsCount--;
+            }
+        }
+        mazeMoveCount = 0;
+    }
+}
+void battleShipRocketCreate(int x, int y)
+{
+    y++;
+    gotoxy(x, y);
+    cout << "#";
+    battleShipRocketX[currentBattleShipRocketsCount] = x;
+    battleShipRocketY[currentBattleShipRocketsCount] = y;
+    currentBattleShipRocketsCount++;
+}
+void createBattleShip()
+{
+    int x = (rand() % 20) + 30;
+    int y = (rand() % 10);
+    printBattleShip(x, y);
+    currentBattleShipsCount++;
+}
+void printBattleShip(int x, int y)
+{
+    char b = 219;
+    char c = 254;
+    gotoxy(x - 2, y);
+    cout << "<" << b << c << b << ">";
+    battleShipsX[currentBattleShipsCount] = x;
+    battleShipsY[currentBattleShipsCount] = y;
+}
+void battleShipHandler()
+{
+    for (int i = currentBattleShipsCount - 1; i >= 0; i--)
+    {
+        battleShipRocketReady[i]++;
+        if (battleShipRocketReady[i] >= 15)
+        {
+            battleShipRocketCreate(battleShipsX[i], battleShipsY[i]);
+            battleShipRocketReady[i] = 0;
+        }
+    }
+    for (int i = currentBattleShipRocketsCount - 1; i >= 0; i--)
+    {
+        if (battleShipRocketY[i] < 20)
+        {
+            gotoxy(battleShipRocketX[i], battleShipRocketY[i]);
+            cout << " ";
+            battleShipRocketY[i]++;
+            gotoxy(battleShipRocketX[i], battleShipRocketY[i]);
+            cout << "#";
+        }
+        else
+        {
+            gotoxy(battleShipRocketX[i], 20);
+            cout << " ";
+            gotoxy(battleShipRocketX[i], 21);
+            cout << " ";
+            removeElementFromArray(battleShipRocketX, battleShipRocketY, i, currentBattleShipRocketsCount);
+            currentBattleShipRocketsCount--;
+        }
+    }
+}
 void drawPlayer(int x, int y)
 {
     char b = 219;
     char s = 254;
-    gotoxy(x-3, y-2);
+    gotoxy(x - 3, y - 2);
     cout << "   " << b;
-    gotoxy(x-3, y - 1);
+    gotoxy(x - 3, y - 1);
     cout << "  " << b << b << b;
-    gotoxy(x-3, y);
+    gotoxy(x - 3, y);
     cout << s << s << b << b << b << s << s;
-    gotoxy(x-3, y + 1);
+    gotoxy(x - 3, y + 1);
     cout << "   " << b;
 }
 void erasePlayer(int x, int y)
 {
     for (int i = 0; i < 4; i++)
     {
-        gotoxy(x - 4, y + i-2);
+        gotoxy(x - 4, y + i - 2);
         cout << "         ";
+    }
+}
+void eraseGeneric(int x, int y, int rows, int cols)
+{
+    for (int i = 0; i < cols; i++)
+    {
+        gotoxy(x, y++);
+        for (int j = 0; j < rows; j++)
+        {
+            cout << " ";
+        }
     }
 }
 
@@ -141,6 +267,8 @@ void startGame()
     }*/
     system("cls");
     drawPlayer(20, 15);
+    // createBattleShip();
+    //  createBattleShip();
     while (running)
     {
         if (GetAsyncKeyState(VK_LEFT))
@@ -163,8 +291,10 @@ void startGame()
         {
             createCannonBullet(playerX, playerY);
         }
+        battleShipHandler();
         cannonBulletsMovement();
-        Sleep(40);
+        moveMazeAndGameElements();
+        Sleep(75);
     }
     halt();
 }
