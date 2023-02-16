@@ -13,8 +13,55 @@ int currentCannonBulletsCount = 0;
 int mazeMoveCount = 0;
 int mazeBattleShipCreate = 0;
 
+// mazes
+string maze1[] = {
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******"};
+string maze2[] = {
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    " ******                                                                  ****** ",
+    "  ******                                                                ******  ",
+    "   ******                                                              ******   ",
+    "    ******                                                            ******    ",
+    "    ******                                                            ******    ",
+    "   ******                                                              ******   ",
+    " ******                                                                  ****** ",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******",
+    "******                                                                    ******"};
+string emptyLine = "                                                                                ";
+string screen[20];
+
 int battleShipsX[numOfBattleShips];
 int battleShipsY[numOfBattleShips];
+bool battleShipsMovement[numOfBattleShips];
 int battleShipRocketX[numOfBattleShips];
 int battleShipRocketY[numOfBattleShips];
 int battleShipRocketReady[numOfBattleShips];
@@ -26,6 +73,7 @@ int playerX = 20, playerY = 15;
 
 // function prototypes
 void printLogo();
+char getCharxy(short x, short y);
 void halt();
 void gotoxy(int x, int y);
 void setColor(short color);
@@ -47,6 +95,7 @@ void createCannonBullet(int x, int y);
 void cannonBulletsMovement();
 void battleShipHandler();
 void printBattleShip(int x, int y);
+void moveMaze();
 void battleShipRocketCreate(int x, int y);
 void removeElementFromArray(int arr1[], int arr2[], int elementIndex, int arraySize);
 void init();
@@ -111,18 +160,64 @@ void cannonBulletsMovement()
         }
     }
 }
+int countIter = 0;
+bool l = false;
+void moveMaze()
+{
+    char c = 219;
+
+    countIter++;
+    if (countIter == 20)
+    {
+        l = rand() % 2;
+        countIter = 0;
+    }
+    string temp;
+    if (l)
+    {
+        temp = maze1[countIter];
+    }
+    else
+    {
+        temp = maze2[countIter];
+    }
+
+    screen[0] = temp;
+    for (int i = 20 - 1; i > 0; i--)
+    {
+        screen[i] = screen[i - 1];
+    }
+    for (int y = 0; y < 20; y++)
+    {
+        // gotoxy(0, i - 1);
+
+        for (int x = 0; x < 80; x++)
+        {
+            if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
+            {
+                gotoxy(x, y);
+                cout << ' ';
+            }
+            else if (screen[y][x] == '*')
+            {
+                gotoxy(x, y);
+                cout << screen[y][x];
+            }
+        }
+    }
+}
 void moveMazeAndGameElements()
 {
     mazeMoveCount++;
     mazeBattleShipCreate++;
-    if (mazeBattleShipCreate == 20)
+    if (mazeBattleShipCreate == 40)
     {
         createBattleShip();
         mazeBattleShipCreate = 0;
     }
     if (mazeMoveCount == 4)
     {
-
+        moveMaze();
         for (int i = currentBattleShipsCount - 1; i >= 0; i--)
         {
             if (battleShipsY[i] < 20)
@@ -154,7 +249,7 @@ void battleShipRocketCreate(int x, int y)
 void createBattleShip()
 {
     int x = (rand() % 20) + 30;
-    int y = (rand() % 10);
+    int y = 0;
     printBattleShip(x, y);
     currentBattleShipsCount++;
 }
@@ -172,6 +267,22 @@ void battleShipHandler()
     for (int i = currentBattleShipsCount - 1; i >= 0; i--)
     {
         battleShipRocketReady[i]++;
+
+        eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
+        if (getCharxy(battleShipsX[i] - 4, battleShipsY[i]) == '*' || getCharxy(battleShipsX[i] + 4, battleShipsY[i]) == '*')
+        {
+            battleShipsMovement[i] = !battleShipsMovement[i];
+        }
+        if (battleShipsMovement[i])
+        {
+            battleShipsX[i]++;
+        }
+        else
+        {
+            battleShipsX[i]--;
+        }
+        printBattleShip(battleShipsX[i], battleShipsY[i]);
+
         if (battleShipRocketReady[i] >= 15)
         {
             battleShipRocketCreate(battleShipsX[i], battleShipsY[i]);
@@ -180,7 +291,7 @@ void battleShipHandler()
     }
     for (int i = currentBattleShipRocketsCount - 1; i >= 0; i--)
     {
-        if (battleShipRocketY[i] < 20)
+        if (battleShipRocketY[i] < 20 && getCharxy(battleShipRocketX[i] - 3, battleShipRocketY[i]) != '*' && getCharxy(battleShipRocketX[i] + 3, battleShipRocketY[i]) != '*')
         {
             gotoxy(battleShipRocketX[i], battleShipRocketY[i]);
             cout << " ";
@@ -190,10 +301,10 @@ void battleShipHandler()
         }
         else
         {
-            gotoxy(battleShipRocketX[i], 20);
+            gotoxy(battleShipRocketX[i], battleShipRocketY[i]);
             cout << " ";
-            gotoxy(battleShipRocketX[i], 21);
-            cout << " ";
+            //  gotoxy(battleShipRocketX[i], 21);
+            //  cout << " ";
             removeElementFromArray(battleShipRocketX, battleShipRocketY, i, currentBattleShipRocketsCount);
             currentBattleShipRocketsCount--;
         }
@@ -203,22 +314,30 @@ void drawPlayer(int x, int y)
 {
     char b = 219;
     char s = 254;
-    gotoxy(x - 3, y - 2);
-    cout << "   " << b;
-    gotoxy(x - 3, y - 1);
-    cout << "  " << b << b << b;
+    gotoxy(x, y - 2);
+    cout << b;
+    gotoxy(x - 1, y - 1);
+    cout << b << b << b;
     gotoxy(x - 3, y);
     cout << s << s << b << b << b << s << s;
-    gotoxy(x - 3, y + 1);
-    cout << "   " << b;
+    gotoxy(x, y + 1);
+    cout << b;
 }
 void erasePlayer(int x, int y)
 {
-    for (int i = 0; i < 4; i++)
-    {
-        gotoxy(x - 4, y + i - 2);
-        cout << "         ";
-    }
+    gotoxy(x, y - 2);
+    cout << " ";
+    gotoxy(x - 1, y - 1);
+    cout << "   ";
+    gotoxy(x - 3, y);
+    cout << "       ";
+    gotoxy(x, y + 1);
+    cout << " ";
+    /* for (int i = 0; i < 4; i++)
+     {
+         gotoxy(x - 4, y + i - 2);
+         cout << "         ";
+     }*/
 }
 void eraseGeneric(int x, int y, int rows, int cols)
 {
@@ -234,30 +353,53 @@ void eraseGeneric(int x, int y, int rows, int cols)
 
 void movePlayerUp()
 {
+    if (getCharxy(playerX - 3, playerY - 1) == '*')
+    {
+        movePlayerRight();
+    }
+    else if (getCharxy(playerX + 3, playerY - 1) == '*')
+    {
+        movePlayerLeft();
+    }
     erasePlayer(playerX, playerY);
     playerY--;
     drawPlayer(playerX, playerY);
 }
 void movePlayerDown()
 {
+    if (getCharxy(playerX - 3, playerY + 1) == '*')
+    {
+        movePlayerRight();
+    }
+    else if (getCharxy(playerX + 3, playerY + 1) == '*')
+    {
+        movePlayerLeft();
+    }
     erasePlayer(playerX, playerY);
     playerY++;
     drawPlayer(playerX, playerY);
 }
 void movePlayerLeft()
 {
-    erasePlayer(playerX, playerY);
-    playerX--;
-    drawPlayer(playerX, playerY);
+    if (getCharxy(playerX - 4, playerY) != '*')
+    {
+        erasePlayer(playerX, playerY);
+        playerX--;
+        drawPlayer(playerX, playerY);
+    }
 }
 void movePlayerRight()
 {
-    erasePlayer(playerX, playerY);
-    playerX++;
-    drawPlayer(playerX, playerY);
+    if (getCharxy(playerX + 4, playerY) != '*')
+    {
+        erasePlayer(playerX, playerY);
+        playerX++;
+        drawPlayer(playerX, playerY);
+    }
 }
 void startGame()
 {
+    // init();
     bool running = true;
     /*    char char0;
     for(int  i=0;i<256;i++)
@@ -290,6 +432,14 @@ void startGame()
         if (GetAsyncKeyState(VK_SPACE))
         {
             createCannonBullet(playerX, playerY);
+        }
+        if (getCharxy(playerX + 3, playerY - 1) == '*')
+        {
+            movePlayerLeft();
+        }
+        if (getCharxy(playerX - 3, playerY - 1) == '*')
+        {
+            movePlayerRight();
         }
         battleShipHandler();
         cannonBulletsMovement();
@@ -432,3 +582,13 @@ void gotoxy(int x, int y)
     SetPixel(deviceHandle,x,x,color);
     ReleaseDC(console,deviceHandle);
 }*/
+char getCharxy(short x, short y)
+{
+    CHAR_INFO ci;
+    COORD xy = {0, 0};
+    SMALL_RECT rect = {x, y, x, y};
+    COORD coordBufSize;
+    coordBufSize.X = 1;
+    coordBufSize.Y = 1;
+    return ReadConsoleOutput(GetStdHandle(STD_OUTPUT_HANDLE), &ci, coordBufSize, xy, &rect) ? ci.Char.AsciiChar : ' ';
+}
