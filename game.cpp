@@ -527,10 +527,10 @@ void moveMazeAndGameElements()
     mazeHelicopterCreate++;
     mazeCannonCreate++;
     if (mazeBattleShipCreate == 49)
-    {
-        createBattleShip();
+        {
+            createBattleShip();
         mazeBattleShipCreate = 0;
-    }
+        }
     if (mazeHelicopterCreate == 33)
     {
         createHelicopter();
