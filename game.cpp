@@ -16,6 +16,8 @@ int mazeMoveCount = 0;
 int score = 0;
 int currentHealth = 100;
 bool gameRunning = false;
+int mazeEnemyCount = 0;
+int mazeRandomEnemy = 30;
 
 int mazePos = 0;
 int mazeNumber = 0;
@@ -129,6 +131,7 @@ char maze4[25][61] = {
 string emptyLine = "                                                                                ";
 
 char screen[25][60];
+char screenSingleLine[60];
 char c254 = 254;
 char c219 = 219;
 
@@ -142,7 +145,6 @@ int battleShipRocketY[numOfBattleShips];
 int battleShipRocketReady[numOfBattleShips];
 int currentBattleShipRocketsCount = 0;
 int currentBattleShipsCount = 0;
-int mazeBattleShipCreate = 0;
 
 // helicopter variables
 int helicoptersX[numOfHelicopters];
@@ -154,7 +156,6 @@ int helicopterBulletsY[numOfHelicopters];
 int helicoptersBulletsReady[numOfHelicopters];
 int currenthelicoptersBulletsCount = 0;
 int currenthelicoptersCount = 0;
-int mazeHelicopterCreate = 0;
 
 // cannon variables
 int cannonX[numOfCannons];
@@ -163,10 +164,9 @@ int cannonRocketX[numOfCannons];
 int cannonRocketY[numOfCannons];
 int cannonRocketType[numOfCannons];
 int cannonRocketsReady[numOfCannons];
-int currentCannonRocketCount=0;
+int currentCannonRocketCount = 0;
 
 int currentCannonCount = 0;
-int mazeCannonCreate = 0;
 
 string menuItems[] = {"start game", "options", "exit"};
 int playerX = 20, playerY = 15;
@@ -228,10 +228,10 @@ void removeHelicopter(int i);
 void removeHelicopterBullet(int i);
 bool checkCollisionWithHelicopter(int i);
 
-void printCannon(int x,int y);
+void printCannon(int x, int y);
 void createCannon();
 void cannonHandler();
-void cannonRocketCreate(int x, int y); 
+void cannonRocketCreate(int x, int y);
 void moveCannonRocket(int i);
 bool checkCannonRocketBound(int i);
 void removeCannon(int i);
@@ -257,7 +257,7 @@ void printDebugInfo()
 void printStats()
 {
     gotoxy(62, 0);
-    if(currentHealth==100)
+    if (currentHealth == 100)
     {
         cout << "Health: " << currentHealth << endl;
     }
@@ -294,15 +294,12 @@ void init()
     currentBattleShipsCount = 0;
     currenthelicoptersBulletsCount = 0;
     currenthelicoptersCount = 0;
-    currentCannonCount=0;
-    currentCannonRocketCount=0;
+    currentCannonCount = 0;
+    currentCannonRocketCount = 0;
     currentLaserBulletsCount = 0;
     currentHealth = 100;
     mazePos = 0;
     mazeNumber = 0;
-    mazeBattleShipCreate=0;
-    mazeHelicopterCreate=0;
-    mazeCannonCreate=0;
     score = 0;
     for (int i = 0; i < 25; i++)
     {
@@ -311,13 +308,13 @@ void init()
             screen[i][j] = maze1[i][j];
         }
     }
-    char c254=254;
-    for(int i=0;i<25;i++)
+    char c254 = 254;
+    for (int i = 0; i < 25; i++)
     {
-        gotoxy(60,i);
-        cout<<c254;
-        gotoxy(61,i);
-        cout<<c254;
+        gotoxy(60, i);
+        cout << c254;
+        gotoxy(61, i);
+        cout << c254;
     }
 }
 void copyCharArray(char arr1[], char arr2[], int size)
@@ -400,7 +397,7 @@ bool checkCollisionWithCannon(int i)
 {
     for (int j = 0; j < currentCannonCount; j++)
     {
-        if (playerLaserY[i] - 1 == cannonY[j] || playerLaserY[i] == cannonY[j]||playerLaserY[i]-2 == cannonY[j])
+        if (playerLaserY[i] - 1 == cannonY[j] || playerLaserY[i] == cannonY[j] || playerLaserY[i] - 2 == cannonY[j])
         {
             if ((playerLaserX[i] >= cannonX[j] - 1) && (playerLaserX[i] <= cannonX[j] + 1))
             {
@@ -448,7 +445,7 @@ void moveLaserBullets()
 {
     for (int i = currentLaserBulletsCount - 1; i >= 0; i--)
     {
-        if (playerLaserY[i] - 1 <= 0 || checkCollisionWithBattleShip(i) || checkCollisionWithHelicopter(i)||checkCollisionWithCannon(i))
+        if (playerLaserY[i] - 1 <= 0 || checkCollisionWithBattleShip(i) || checkCollisionWithHelicopter(i) || checkCollisionWithCannon(i))
         {
             removeLaserBullet(i);
             continue;
@@ -472,50 +469,66 @@ void moveLaserBullets()
 void moveMaze()
 {
     char c = 219;
-
-    mazePos++;
-    if (mazePos == 25)
+    if (mazeMoveCount == 2)
     {
-        mazeNumber = rand() % 4;
-        mazePos = 0;
-    }
-    char temp[60];
-    if (mazeNumber == 0)
-    {
-        copyCharArray(temp, maze1[mazePos], 60);
-    }
-    else if (mazeNumber == 2)
-    {
-        copyCharArray(temp, maze2[mazePos], 60);
-    }
-    else if (mazeNumber == 3)
-    {
-
-        copyCharArray(temp, maze3[mazePos], 60);
-    }
-    else
-    {
-        copyCharArray(temp, maze4[mazePos], 60);
-    }
-    copyCharArray(screen[0], temp, 60);
-
-    for (int i = 25 - 1; i > 0; i--)
-    {
-        copyCharArray(screen[i], screen[i - 1], 60);
-    }
-    for (int y = 0; y < 25; y++)
-    {
-        for (int x = 0; x < 60; x++)
+        mazePos++;
+        if (mazePos == 25)
         {
-            if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
+            mazeNumber = rand() % 4;
+            mazePos = 0;
+        }
+        if (mazeNumber == 0)
+        {
+            copyCharArray(screenSingleLine, maze1[mazePos], 60);
+        }
+        else if (mazeNumber == 2)
+        {
+            copyCharArray(screenSingleLine, maze2[mazePos], 60);
+        }
+        else if (mazeNumber == 3)
+        {
+
+            copyCharArray(screenSingleLine, maze3[mazePos], 60);
+        }
+        else
+        {
+            copyCharArray(screenSingleLine, maze4[mazePos], 60);
+        }
+    }
+    else if (mazeMoveCount == 4)
+    {
+        copyCharArray(screen[0], screenSingleLine, 60);
+        for (int i = 25 - 1; i > 0; i--)
+        {
+            copyCharArray(screen[i], screen[i - 1], 60);
+        }
+        for (int y = 0; y < 25; y++)
+        {
+            for (int x = 0; x < 12; x++)
             {
-                gotoxy(x, y);
-                cout << ' ';
+                if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
+                {
+                    gotoxy(x, y);
+                    cout << ' ';
+                }
+                else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
+                {
+                    gotoxy(x, y);
+                    cout << '*';
+                }
             }
-            else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
+            for (int x = 60 - 12; x < 60; x++)
             {
-                gotoxy(x, y);
-                cout << screen[y][x];
+                if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
+                {
+                    gotoxy(x, y);
+                    cout << ' ';
+                }
+                else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
+                {
+                    gotoxy(x, y);
+                    cout << '*';
+                }
             }
         }
     }
@@ -523,27 +536,28 @@ void moveMaze()
 void moveMazeAndGameElements()
 {
     mazeMoveCount++;
-    mazeBattleShipCreate++;
-    mazeHelicopterCreate++;
-    mazeCannonCreate++;
-    if (mazeBattleShipCreate == 49)
+    mazeEnemyCount++;
+    if (mazeEnemyCount == mazeRandomEnemy)
+    {
+        int randomEnemy = rand() % 3;
+        if (randomEnemy == 0)
         {
             createBattleShip();
-        mazeBattleShipCreate = 0;
         }
-    if (mazeHelicopterCreate == 33)
-    {
-        createHelicopter();
-        mazeHelicopterCreate = 0;
+        else if (randomEnemy == 1)
+        {
+            createHelicopter();
+        }
+        else if (randomEnemy == 2)
+        {
+            createCannon();
+        }
+        mazeEnemyCount = 0;
+        mazeRandomEnemy = rand() % 50 + 10;
     }
-    if (mazeCannonCreate == 150)
-    {
-        createCannon();
-        mazeCannonCreate = 0;
-    }
+    moveMaze();
     if (mazeMoveCount == 4)
     {
-        moveMaze();
         for (int i = currentBattleShipsCount - 1; i >= 0; i--)
         {
             if (battleShipsY[i] < 24)
@@ -597,29 +611,29 @@ void battleShipRocketCreate(int x, int y)
 }
 void cannonRocketCreate(int x, int y)
 {
-    gotoxy(x, y+2);
+    gotoxy(x, y + 2);
     cout << "#";
     cannonRocketX[currentCannonRocketCount] = x;
-    cannonRocketY[currentCannonRocketCount] = y+2;
-    cannonRocketType[currentCannonRocketCount]=0;
+    cannonRocketY[currentCannonRocketCount] = y + 2;
+    cannonRocketType[currentCannonRocketCount] = 0;
     currentCannonRocketCount++;
-    gotoxy(x+2, y);
+    gotoxy(x + 2, y);
     cout << "#";
-    cannonRocketX[currentCannonRocketCount] = x+2;
+    cannonRocketX[currentCannonRocketCount] = x + 2;
     cannonRocketY[currentCannonRocketCount] = y;
-    cannonRocketType[currentCannonRocketCount]=1;
+    cannonRocketType[currentCannonRocketCount] = 1;
     currentCannonRocketCount++;
-    gotoxy(x, y-2);
+    gotoxy(x, y - 2);
     cout << "#";
     cannonRocketX[currentCannonRocketCount] = x;
-    cannonRocketY[currentCannonRocketCount] = y-2;
-    cannonRocketType[currentCannonRocketCount]=2;
+    cannonRocketY[currentCannonRocketCount] = y - 2;
+    cannonRocketType[currentCannonRocketCount] = 2;
     currentCannonRocketCount++;
-    gotoxy(x-2, y);
+    gotoxy(x - 2, y);
     cout << "#";
-    cannonRocketX[currentCannonRocketCount] = x-2;
+    cannonRocketX[currentCannonRocketCount] = x - 2;
     cannonRocketY[currentCannonRocketCount] = y;
-    cannonRocketType[currentCannonRocketCount]=3;
+    cannonRocketType[currentCannonRocketCount] = 3;
     currentCannonRocketCount++;
 }
 void HelicopterBulletCreate(int x, int y)
@@ -718,7 +732,7 @@ void battleShipHandler()
 {
     for (int i = currentBattleShipsCount - 1; i >= 0; i--)
     {
-        if (checkCollisionWithPlayer(battleShipsX[i], battleShipsY[i])||checkCollisionWithPlayer(battleShipsX[i]+1, battleShipsY[i])||checkCollisionWithPlayer(battleShipsX[i]-1, battleShipsY[i])||checkCollisionWithPlayer(battleShipsX[i]+2, battleShipsY[i])||checkCollisionWithPlayer(battleShipsX[i]-2, battleShipsY[i]))
+        if (checkCollisionWithPlayer(battleShipsX[i], battleShipsY[i]) || checkCollisionWithPlayer(battleShipsX[i] + 1, battleShipsY[i]) || checkCollisionWithPlayer(battleShipsX[i] - 1, battleShipsY[i]) || checkCollisionWithPlayer(battleShipsX[i] + 2, battleShipsY[i]) || checkCollisionWithPlayer(battleShipsX[i] - 2, battleShipsY[i]))
         {
             removeBattleShip(i);
             decreasePlayerHealth(50);
@@ -790,7 +804,7 @@ void cannonHandler()
 {
     for (int i = currentCannonCount - 1; i >= 0; i--)
     {
-        if (checkCollisionWithPlayer(cannonX[i], cannonY[i])||checkCollisionWithPlayer(cannonX[i]+1, cannonY[i])||checkCollisionWithPlayer(cannonX[i]-1, cannonY[i])||checkCollisionWithPlayer(cannonX[i], cannonY[i]+1)||checkCollisionWithPlayer(cannonX[i], cannonY[i]-1))
+        if (checkCollisionWithPlayer(cannonX[i], cannonY[i]) || checkCollisionWithPlayer(cannonX[i] + 1, cannonY[i]) || checkCollisionWithPlayer(cannonX[i] - 1, cannonY[i]) || checkCollisionWithPlayer(cannonX[i], cannonY[i] + 1) || checkCollisionWithPlayer(cannonX[i], cannonY[i] - 1))
         {
             removeCannon(i);
             decreasePlayerHealth(30);
@@ -819,27 +833,26 @@ void cannonHandler()
             removeCannonRocket(i);
         }
     }
-
 }
 bool checkCannonRocketBound(int i)
 {
-if(cannonRocketY[i]<=25&&cannonRocketType[i]==0&&getCharxy(cannonRocketX[i], cannonRocketY[i] + 1)==' ')
-{
-    return true;
-}
-else if(cannonRocketY[i]>=0&&cannonRocketType[i]==2&&getCharxy(cannonRocketX[i], cannonRocketY[i] - 1)==' ')
-{
-    return true;
-}
-else if(cannonRocketType[i]==1&&getCharxy(cannonRocketX[i]+1, cannonRocketY[i])==' ')
-{
-    return true;
-}
-else if(cannonRocketType[i]==3&&getCharxy(cannonRocketX[i]-1, cannonRocketY[i])==' ')
-{
-    return true;
-}
-return false;
+    if (cannonRocketY[i] <= 25 && cannonRocketType[i] == 0 && getCharxy(cannonRocketX[i], cannonRocketY[i] + 1) == ' ')
+    {
+        return true;
+    }
+    else if (cannonRocketY[i] >= 0 && cannonRocketType[i] == 2 && getCharxy(cannonRocketX[i], cannonRocketY[i] - 1) == ' ')
+    {
+        return true;
+    }
+    else if (cannonRocketType[i] == 1 && getCharxy(cannonRocketX[i] + 1, cannonRocketY[i]) == ' ')
+    {
+        return true;
+    }
+    else if (cannonRocketType[i] == 3 && getCharxy(cannonRocketX[i] - 1, cannonRocketY[i]) == ' ')
+    {
+        return true;
+    }
+    return false;
 }
 void moveBattleShipHorizontally(int i)
 {
@@ -903,26 +916,26 @@ void moveBattleShipRocket(int i)
 }
 void moveCannonRocket(int i)
 {
-    gotoxy(cannonRocketX[i],cannonRocketY[i]);
-    cout<<' ';
-    if(cannonRocketType[i]==0)
+    gotoxy(cannonRocketX[i], cannonRocketY[i]);
+    cout << ' ';
+    if (cannonRocketType[i] == 0)
     {
         cannonRocketY[i]++;
     }
-    else if(cannonRocketType[i]==1)
+    else if (cannonRocketType[i] == 1)
     {
         cannonRocketX[i]++;
     }
-        else if(cannonRocketType[i]==2)
+    else if (cannonRocketType[i] == 2)
     {
         cannonRocketY[i]--;
     }
-        else if(cannonRocketType[i]==3)
+    else if (cannonRocketType[i] == 3)
     {
         cannonRocketX[i]--;
     }
-    gotoxy(cannonRocketX[i],cannonRocketY[i]);
-    cout<<'#';
+    gotoxy(cannonRocketX[i], cannonRocketY[i]);
+    cout << '#';
 }
 void moveHelicopterBullet(int i)
 {
@@ -950,7 +963,7 @@ void removeHelicopterBullet(int i)
 }
 void removeCannonRocket(int i)
 {
-        gotoxy(cannonRocketX[i], cannonRocketY[i]);
+    gotoxy(cannonRocketX[i], cannonRocketY[i]);
     cout << " ";
     removeElementFromIntArray(cannonRocketX, i, currentCannonRocketCount);
     removeElementFromIntArray(cannonRocketY, i, currentCannonRocketCount);
@@ -1087,7 +1100,7 @@ void startGame()
         moveMazeAndGameElements();
         moveLaserBullets();
         printStats();
-        Sleep(50);
+        Sleep(25);
     }
 }
 void printMenuItems(int offset, string items[], int arraySize)
