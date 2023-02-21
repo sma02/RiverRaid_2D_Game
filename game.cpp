@@ -174,6 +174,7 @@ int playerX = 20, playerY = 15;
 // function prototypes
 void printLogo();
 char getCharxy(short x, short y);
+char getCharxy(short x, short y);
 void halt();
 void gotoxy(int x, int y);
 void setColor(short color);
@@ -740,6 +741,22 @@ void battleShipHandler()
         }
         moveBattleShipHorizontally(i);
         battleShipRocketReady[i]++;
+
+        eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
+        if (getCharxy(battleShipsX[i] - 4, battleShipsY[i]) == '*' || getCharxy(battleShipsX[i] + 4, battleShipsY[i]) == '*')
+        {
+            battleShipsMovement[i] = !battleShipsMovement[i];
+        }
+        if (battleShipsMovement[i])
+        {
+            battleShipsX[i]++;
+        }
+        else
+        {
+            battleShipsX[i]--;
+        }
+        printBattleShip(battleShipsX[i], battleShipsY[i]);
+
         if (battleShipRocketReady[i] >= 15)
         {
             battleShipRocketCreate(battleShipsX[i], battleShipsY[i]);
@@ -984,7 +1001,7 @@ void drawPlayer(int x, int y)
     gotoxy(x - 1, y + 2);
     cout << s << b << s;
 }
-void erasePlayer(int x, int y)
+void removeCannonRocket(int i)
 {
 
     gotoxy(x, y - 1);
