@@ -297,10 +297,13 @@ void init()
     currentCannonCount = 0;
     currentCannonRocketCount = 0;
     currentLaserBulletsCount = 0;
-    currentHealth = 100;
+    mazeEnemyCount = 0;
     mazePos = 0;
+    mazeMoveCount = 0;
+    currentHealth = 100;
     mazeNumber = 0;
     score = 0;
+    setColor(0x22);
     for (int i = 0; i < 25; i++)
     {
         for (int j = 0; j < 60; j++)
@@ -308,6 +311,7 @@ void init()
             screen[i][j] = maze1[i][j];
         }
     }
+    setColor(0x88);
     char c254 = 254;
     for (int i = 0; i < 25; i++)
     {
@@ -316,6 +320,7 @@ void init()
         gotoxy(61, i);
         cout << c254;
     }
+    setColor(0x17);
 }
 void copyCharArray(char arr1[], char arr2[], int size)
 {
@@ -343,7 +348,9 @@ void createLaserBullet(int x, int y)
     // x += 3;
     y -= 2;
     gotoxy(x, y);
+    setColor(0x1E);
     cout << '|';
+    setColor(0x17);
     playerLaserX[currentLaserBulletsCount] = x;
     playerLaserY[currentLaserBulletsCount] = y;
     currentLaserBulletsCount++;
@@ -458,7 +465,9 @@ void moveLaserBullets()
             cout << ' ';
             playerLaserY[i]--;
             gotoxy(playerLaserX[i], playerLaserY[i]);
+            setColor(0x1E);
             cout << '|';
+            setColor(0x17);
         }
         else
         {
@@ -502,17 +511,20 @@ void moveMaze()
         {
             copyCharArray(screen[i], screen[i - 1], 60);
         }
+        //  setColor(0x22);
         for (int y = 0; y < 25; y++)
         {
-            for (int x = 0; x < 12; x++)
+            for (int x = 0; x <= 12; x++)
             {
                 if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
                 {
+                    setColor(0x11);
                     gotoxy(x, y);
                     cout << ' ';
                 }
                 else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
                 {
+                    setColor(0x22);
                     gotoxy(x, y);
                     cout << '*';
                 }
@@ -521,16 +533,19 @@ void moveMaze()
             {
                 if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
                 {
+                    setColor(0x11);
                     gotoxy(x, y);
                     cout << ' ';
                 }
                 else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
                 {
+                    setColor(0x22);
                     gotoxy(x, y);
                     cout << '*';
                 }
             }
         }
+        setColor(0x17);
     }
 }
 void moveMazeAndGameElements()
@@ -647,7 +662,7 @@ void HelicopterBulletCreate(int x, int y)
 }
 void createBattleShip()
 {
-    int x = (rand() % 40) + 10;
+    int x = (rand() % 36) + 14;
     int y = 0;
     battleShipsX[currentBattleShipsCount] = x;
     battleShipsY[currentBattleShipsCount] = y;
@@ -658,7 +673,7 @@ void createBattleShip()
 }
 void createHelicopter()
 {
-    int x = (rand() % 40) + 10;
+    int x = (rand() % 36) + 14;
     int y = 0;
     helicoptersX[currenthelicoptersCount] = x;
     helicoptersY[currenthelicoptersCount] = y;
@@ -708,12 +723,22 @@ void printBattleShip(int x, int y)
     char b = 219;
     char c = 254;
     gotoxy(x - 2, y);
-    cout << "<" << b << c << b << ">";
+    setColor(0x18);
+    cout << '<';
+    cout << b;
+    setColor(0x13);
+    cout << c;
+    setColor(0x18);
+    cout << b;
+    cout << '>';
+    setColor(0x17);
 }
 void printHelicopter(int x, int y)
 {
+    setColor(0x18);
     gotoxy(x, y);
     cout << '%';
+    setColor(0x17);
 }
 void printCannon(int x, int y)
 {
@@ -721,12 +746,18 @@ void printCannon(int x, int y)
     char c17 = 17;
     char c30 = 30;
     char c31 = 31;
+    setColor(0x10);
     gotoxy(x, y - 1);
     cout << c30;
     gotoxy(x - 1, y);
-    cout << c17 << 'o' << c16;
+    cout << c17;
+    setColor(0x14);
+    cout << '+';
+    setColor(0x10);
+    cout << c16;
     gotoxy(x, y + 1);
     cout << c31;
+    setColor(0x17);
 }
 void battleShipHandler()
 {
@@ -975,14 +1006,24 @@ void drawPlayer(int x, int y)
     char b = 254;
     char s = 205;
     char t = 30;
+    setColor(0x16);
     gotoxy(x, y - 1);
     cout << t;
+    setColor(0x17);
     gotoxy(x - 2, y);
-    cout << s << s << b << s << s;
+    setColor(0x16);
+    cout << s << s;
+    setColor(0x17);
+    cout << b;
+    setColor(0x16);
+    cout << s << s;
+    setColor(0x17);
     gotoxy(x, y + 1);
     cout << b;
     gotoxy(x - 1, y + 2);
+    setColor(0x16);
     cout << s << b << s;
+    setColor(0x17);
 }
 void erasePlayer(int x, int y)
 {
@@ -1100,8 +1141,9 @@ void startGame()
         moveMazeAndGameElements();
         moveLaserBullets();
         printStats();
-        Sleep(25);
+        Sleep(75);
     }
+    setColor(0x7);
 }
 void printMenuItems(int offset, string items[], int arraySize)
 {
