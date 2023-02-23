@@ -1070,11 +1070,11 @@ void movePlayerDown()
 {
     if (playerY <= 21)
     {
-        if (getCharxy(playerX - 2, playerY + 1) == '*')
+        if (screen[playerY + 1][playerX - 2] == '*' || screen[playerY + 3][playerX - 1] == '*')
         {
             movePlayerRight();
         }
-        else if (getCharxy(playerX + 2, playerY + 1) == '*')
+        else if (screen[playerY + 1][playerX + 2] == '*' || screen[playerY + 3][playerX + 1] == '*')
         {
             movePlayerLeft();
         }
@@ -1085,7 +1085,7 @@ void movePlayerDown()
 }
 void movePlayerLeft()
 {
-    if (getCharxy(playerX - 3, playerY) != '*')
+    if (screen[playerY][playerX - 3] != '*' && screen[playerY + 2][playerX - 2] != '*')
     {
         erasePlayer(playerX, playerY);
         playerX--;
@@ -1094,7 +1094,7 @@ void movePlayerLeft()
 }
 void movePlayerRight()
 {
-    if (getCharxy(playerX + 3, playerY) != '*')
+    if (screen[playerY][playerX + 3] != '*' && screen[playerY + 2][playerX + 2] != '*')
     {
         erasePlayer(playerX, playerY);
         playerX++;
@@ -1141,7 +1141,7 @@ void startGame()
         moveMazeAndGameElements();
         moveLaserBullets();
         printStats();
-        Sleep(75);
+        Sleep(25);
     }
     setColor(0x7);
 }
