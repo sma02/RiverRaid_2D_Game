@@ -1,6 +1,7 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
+#include <time.h>
 #include <cmath>
 using namespace std;
 
@@ -18,122 +19,141 @@ int currentHealth = 100;
 bool gameRunning = false;
 int mazeEnemyCount = 0;
 int mazeRandomEnemy = 30;
-
+double timeElapsed;
+clock_t startTime;
+clock_t stopTime;
 int mazePos = 0;
 int mazeNumber = 0;
-
-// mazes
-char maze1[25][61] = {
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******"};
-char maze2[25][61] = {
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "*******                                              *******",
-    "********                                            ********",
-    "*********                                          *********",
-    "**********                                        **********",
-    "**********                                        **********",
-    "*********                                          *********",
-    "*******                                              *******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******"};
-char maze3[25][61] = {
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "********                                             *******",
-    "*********                                           ********",
-    "**********                                        **********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "*********                                          *********",
-    "********                                            ********",
-    "*******                                              *******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******",
-    "******                                                ******"};
-char maze4[25][61] = {
-    "*******                                              *******",
-    "********                                            ********",
-    "*********                                          *********",
-    "**********                                        **********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "***********                                      ***********",
-    "**********                                        **********",
-    "*********                                          *********",
-    "********                                            ********",
-    "*******                                              *******"};
-
-string emptyLine = "                                                                                ";
-
-char screen[25][60];
-char screenSingleLine[60];
+char screen[30][81];
+char screenSingleLine[81];
 char c254 = 254;
 char c219 = 219;
+
+// mazes
+char maze1[30][81] = {
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********"};
+char maze2[30][81] = {
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "************                                                        ************",
+    "*************                                                      *************",
+    "**************                                                    **************",
+    "***************                                                  ***************",
+    "***************                                                  ***************",
+    "***************                                                  ***************",
+    "***************                                                  ***************",
+    "***************                                                  ***************",
+    "***************                                                  ***************",
+    "**************                                                    **************",
+    "************                                                        ************",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********"};
+char maze3[30][81] = {
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "*************                                                       ************",
+    "**************                                                     *************",
+    "***************                                                  ***************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "**************                                                    **************",
+    "*************                                                      *************",
+    "************                                                        ************",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********",
+    "***********                                                          ***********"};
+char maze4[30][81] = {
+    "************                                                        ************",
+    "*************                                                      *************",
+    "**************                                                    **************",
+    "***************                                                  ***************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "****************                                                ****************",
+    "***************                                                  ***************",
+    "**************                                                    **************",
+    "*************                                                      *************",
+    "************                                                        ************"};
 
 // battleShip variables
 int battleShipsX[numOfBattleShips];
@@ -170,6 +190,7 @@ int currentCannonCount = 0;
 
 string menuItems[] = {"start game", "options", "exit"};
 int playerX = 20, playerY = 15;
+char m = 219;
 
 // function prototypes
 void printLogo();
@@ -183,6 +204,7 @@ string getStringAtxy(short int x, short int y);
 void printMenuItems(int offset, string items[], int arraySize);
 void movePointer(int previousPos, int pointerPos, int offset, short color);
 void copyCharArray(char arr1[], char arr2[], int size);
+void handleRandomEnemySpawn();
 
 void movePlayerUp();
 void movePlayerDown();
@@ -193,6 +215,7 @@ void erasePlayer(int x, int y);
 void createLaserBullet(int x, int y);
 void moveLaserBullets();
 bool checkCollisionWithPlayer(int x, int y);
+void handleRocketLasorBulletCollision();
 
 void eraseGeneric(int x, int y, int rows, int cols);
 
@@ -212,6 +235,7 @@ void printBattleShip(int x, int y);
 void createBattleShip();
 void battleShipHandler();
 void battleShipRocketCreate(int x, int y);
+void moveBattleShipVertically();
 void moveBattleShipHorizontally(int i);
 void moveBattleShipRocket(int i);
 void removeBattleShip(int i);
@@ -222,6 +246,7 @@ void printHelicopter(int x, int y);
 void createHelicopter();
 void helicopterHandler();
 void helicopterBulletCreate(int x, int y);
+void moveHelicopterVertically();
 void moveHelicopterHorizontally(int i);
 void moveHelicopterBullet(int i);
 void removeHelicopter(int i);
@@ -232,6 +257,7 @@ void printCannon(int x, int y);
 void createCannon();
 void cannonHandler();
 void cannonRocketCreate(int x, int y);
+void moveCannonVertically();
 void moveCannonRocket(int i);
 bool checkCannonRocketBound(int i);
 void removeCannon(int i);
@@ -240,10 +266,20 @@ bool checkCollisionWithCannon(int i);
 
 void addScore(int value);
 void decreasePlayerHealth(int value);
-
+void changeMazeCharacters(char theMaze[30][81])
+{
+    for (int y = 0; y < 30; y++)
+    {
+        for (int x = 0; x < 80; x++)
+        {
+            if (theMaze[y][x] == '*')
+                theMaze[y][x] = m;
+        }
+    }
+}
 void printDebugInfo()
 {
-    gotoxy(61, 0);
+    gotoxy(81, 0);
     //   cout << "No of bullets:" << currentCannonBulletsCount << endl;
     //  cout << "No of battleShips" << currentBattleShipsCount<<endl;
     cout << "Health: " << currentHealth << endl;
@@ -256,7 +292,7 @@ void printDebugInfo()
 }
 void printStats()
 {
-    gotoxy(62, 0);
+    gotoxy(82, 0);
     if (currentHealth == 100)
     {
         cout << "Health: " << currentHealth << endl;
@@ -265,11 +301,15 @@ void printStats()
     {
         cout << "Health:  " << currentHealth << endl;
     }
-    gotoxy(62, 1);
+    gotoxy(82, 1);
     cout << "Score: " << score;
 }
 int main()
 {
+    changeMazeCharacters(maze1);
+    changeMazeCharacters(maze2);
+    changeMazeCharacters(maze3);
+    changeMazeCharacters(maze4);
     int choice = 0;
     consoleCursor(false);
     while (choice != 2)
@@ -281,7 +321,6 @@ int main()
         if (choice == 0)
         {
             cin.sync();
-            init();
             startGame();
         }
     }
@@ -304,20 +343,20 @@ void init()
     mazeNumber = 0;
     score = 0;
     setColor(0x22);
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < 30; i++)
     {
-        for (int j = 0; j < 60; j++)
+        for (int j = 0; j < 80; j++)
         {
             screen[i][j] = maze1[i][j];
         }
     }
     setColor(0x88);
     char c254 = 254;
-    for (int i = 0; i < 25; i++)
+    for (int i = 0; i < 30; i++)
     {
-        gotoxy(60, i);
+        gotoxy(80, i);
         cout << c254;
-        gotoxy(61, i);
+        gotoxy(81, i);
         cout << c254;
     }
     setColor(0x17);
@@ -346,7 +385,7 @@ void removeElementFromBoolArray(bool arr[], int elementIndex, int arraySize)
 void createLaserBullet(int x, int y)
 {
     // x += 3;
-    y -= 2;
+    y -= 1;
     gotoxy(x, y);
     setColor(0x1E);
     cout << '|';
@@ -481,76 +520,47 @@ void moveMaze()
     if (mazeMoveCount == 2)
     {
         mazePos++;
-        if (mazePos == 25)
+        if (mazePos == 30)
         {
             mazeNumber = rand() % 4;
             mazePos = 0;
         }
         if (mazeNumber == 0)
         {
-            copyCharArray(screenSingleLine, maze1[mazePos], 60);
+            copyCharArray(screenSingleLine, maze1[mazePos], 80);
         }
         else if (mazeNumber == 2)
         {
-            copyCharArray(screenSingleLine, maze2[mazePos], 60);
+            copyCharArray(screenSingleLine, maze2[mazePos], 80);
         }
         else if (mazeNumber == 3)
         {
 
-            copyCharArray(screenSingleLine, maze3[mazePos], 60);
+            copyCharArray(screenSingleLine, maze3[mazePos], 80);
         }
         else
         {
-            copyCharArray(screenSingleLine, maze4[mazePos], 60);
+            copyCharArray(screenSingleLine, maze4[mazePos], 80);
         }
     }
     else if (mazeMoveCount == 4)
     {
-        copyCharArray(screen[0], screenSingleLine, 60);
-        for (int i = 25 - 1; i > 0; i--)
+        copyCharArray(screen[0], screenSingleLine, 80);
+        for (int i = 30 - 1; i > 0; i--)
         {
-            copyCharArray(screen[i], screen[i - 1], 60);
+            copyCharArray(screen[i], screen[i - 1], 80);
         }
-        //  setColor(0x22);
-        for (int y = 0; y < 25; y++)
+        setColor(0x12);
+        for (int y = 0; y < 30; y++)
         {
-            for (int x = 0; x <= 12; x++)
-            {
-                if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
-                {
-                    setColor(0x11);
-                    gotoxy(x, y);
-                    cout << ' ';
-                }
-                else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
-                {
-                    setColor(0x22);
-                    gotoxy(x, y);
-                    cout << '*';
-                }
-            }
-            for (int x = 60 - 12; x < 60; x++)
-            {
-                if (getCharxy(x, y) == '*' && screen[y][x] == ' ')
-                {
-                    setColor(0x11);
-                    gotoxy(x, y);
-                    cout << ' ';
-                }
-                else if (screen[y][x] == '*' && getCharxy(x, y) == ' ')
-                {
-                    setColor(0x22);
-                    gotoxy(x, y);
-                    cout << '*';
-                }
-            }
+            gotoxy(0, y);
+            cout << screen[y];
         }
         setColor(0x17);
     }
 }
-void moveMazeAndGameElements()
+void handleRandomEnemySpawn()
 {
-    mazeMoveCount++;
     mazeEnemyCount++;
     if (mazeEnemyCount == mazeRandomEnemy)
     {
@@ -568,51 +578,67 @@ void moveMazeAndGameElements()
             createCannon();
         }
         mazeEnemyCount = 0;
-        mazeRandomEnemy = rand() % 50 + 10;
+        mazeRandomEnemy = rand() % 50 + 20;
     }
+}
+void moveMazeAndGameElements()
+{
+    mazeMoveCount++;
     moveMaze();
     if (mazeMoveCount == 4)
     {
-        for (int i = currentBattleShipsCount - 1; i >= 0; i--)
-        {
-            if (battleShipsY[i] < 24)
-            {
-                eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
-                battleShipsY[i]++;
-                printBattleShip(battleShipsX[i], battleShipsY[i]);
-            }
-            else
-            {
-                removeBattleShip(i);
-            }
-        }
-        for (int i = currenthelicoptersCount - 1; i >= 0; i--)
-        {
-            if (helicoptersY[i] < 24)
-            {
-                eraseGeneric(helicoptersX[i], helicoptersY[i], 1, 1);
-                helicoptersY[i]++;
-                printHelicopter(helicoptersX[i], helicoptersY[i]);
-            }
-            else
-            {
-                removeHelicopter(i);
-            }
-        }
-        for (int i = currentCannonCount - 1; i >= 0; i--)
-        {
-            if (cannonY[i] < 24)
-            {
-                eraseGeneric(cannonX[i] - 1, cannonY[i] - 1, 3, 3);
-                cannonY[i]++;
-                printCannon(cannonX[i], cannonY[i]);
-            }
-            else
-            {
-                removeCannon(i);
-            }
-        }
+        moveBattleShipVertically();
+        moveHelicopterVertically();
+        moveCannonVertically();
         mazeMoveCount = 0;
+    }
+}
+void moveBattleShipVertically()
+{
+    for (int i = currentBattleShipsCount - 1; i >= 0; i--)
+    {
+        if (battleShipsY[i] < 29)
+        {
+            eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
+            battleShipsY[i]++;
+            printBattleShip(battleShipsX[i], battleShipsY[i]);
+        }
+        else
+        {
+            removeBattleShip(i);
+        }
+    }
+}
+void moveHelicopterVertically()
+{
+    for (int i = currenthelicoptersCount - 1; i >= 0; i--)
+    {
+        if (helicoptersY[i] < 29)
+        {
+            eraseGeneric(helicoptersX[i], helicoptersY[i], 1, 1);
+            helicoptersY[i]++;
+            printHelicopter(helicoptersX[i], helicoptersY[i]);
+        }
+        else
+        {
+            removeHelicopter(i);
+        }
+    }
+}
+void moveCannonVertically()
+{
+    for (int i = currentCannonCount - 1; i >= 0; i--)
+    {
+        if (cannonY[i] < 28)
+        {
+            eraseGeneric(cannonX[i] - 1, cannonY[i] - 1, 3, 3);
+            cannonY[i]++;
+            printCannon(cannonX[i], cannonY[i]);
+        }
+        else
+        {
+            removeCannon(i);
+        }
     }
 }
 void battleShipRocketCreate(int x, int y)
@@ -684,7 +710,7 @@ void createHelicopter()
 }
 void createCannon()
 {
-    int x = 30;
+    int x = 40;
     int y = 1;
     cannonX[currentCannonCount] = x;
     cannonY[currentCannonCount] = y;
@@ -713,6 +739,7 @@ void removeHelicopter(int i)
 void removeCannon(int i)
 {
     eraseGeneric(cannonX[i] - 1, cannonY[i] - 1, 3, 3);
+
     removeElementFromIntArray(cannonX, i, currentCannonCount);
     removeElementFromIntArray(cannonY, i, currentCannonCount);
     removeElementFromIntArray(cannonRocketsReady, i, currentCannonCount);
@@ -735,7 +762,7 @@ void printBattleShip(int x, int y)
 }
 void printHelicopter(int x, int y)
 {
-    setColor(0x18);
+    setColor(0x17);
     gotoxy(x, y);
     cout << '%';
     setColor(0x17);
@@ -755,8 +782,11 @@ void printCannon(int x, int y)
     cout << '+';
     setColor(0x10);
     cout << c16;
-    gotoxy(x, y + 1);
-    cout << c31;
+    if (y != 30)
+    {
+        gotoxy(x, y + 1);
+        cout << c31;
+    }
     setColor(0x17);
 }
 void battleShipHandler()
@@ -785,7 +815,7 @@ void battleShipHandler()
             removeBattleShipRocket(i);
             decreasePlayerHealth(25);
         }
-        else if (battleShipRocketY[i] < 24 && next == ' ')
+        else if (battleShipRocketY[i] < 29 && next == ' ')
         {
             moveBattleShipRocket(i);
         }
@@ -821,7 +851,7 @@ void helicopterHandler()
             removeHelicopterBullet(i);
             decreasePlayerHealth(1);
         }
-        else if (helicopterBulletsY[i] < 24 && next == ' ')
+        else if (helicopterBulletsY[i] < 29 && next == ' ')
         {
             moveHelicopterBullet(i);
         }
@@ -867,7 +897,7 @@ void cannonHandler()
 }
 bool checkCannonRocketBound(int i)
 {
-    if (cannonRocketY[i] <= 25 && cannonRocketType[i] == 0 && getCharxy(cannonRocketX[i], cannonRocketY[i] + 1) == ' ')
+    if (cannonRocketY[i] < 29 && cannonRocketType[i] == 0 && getCharxy(cannonRocketX[i], cannonRocketY[i] + 1) == ' ')
     {
         return true;
     }
@@ -892,11 +922,11 @@ void moveBattleShipHorizontally(int i)
     {
         battleShipMovementTimer[i] = 0;
         eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
-        if (screen[battleShipsY[i]][battleShipsX[i] - 4] == '*')
+        if (screen[battleShipsY[i]][battleShipsX[i] - 4] == m)
         {
             battleShipsMovement[i] = 1;
         }
-        else if (screen[battleShipsY[i]][battleShipsX[i] + 4] == '*')
+        else if (screen[battleShipsY[i]][battleShipsX[i] + 4] == m)
         {
             battleShipsMovement[i] = 0;
         }
@@ -918,11 +948,11 @@ void moveHelicopterHorizontally(int i)
     {
         helicoptersMovementTimer[i] = 0;
         eraseGeneric(helicoptersX[i], helicoptersY[i], 1, 1);
-        if (screen[helicoptersY[i]][helicoptersX[i] - 1] == '*')
+        if (screen[helicoptersY[i]][helicoptersX[i] - 1] == m)
         {
             helicoptersMovement[i] = true;
         }
-        else if (screen[helicoptersY[i]][helicoptersX[i] + 1] == '*')
+        else if (screen[helicoptersY[i]][helicoptersX[i] + 1] == m)
         {
             helicoptersMovement[i] = false;
         }
@@ -1014,15 +1044,15 @@ void drawPlayer(int x, int y)
     setColor(0x16);
     cout << s << s;
     setColor(0x17);
-    cout << b;
+    cout << m;
     setColor(0x16);
     cout << s << s;
     setColor(0x17);
     gotoxy(x, y + 1);
-    cout << b;
+    cout << m;
     gotoxy(x - 1, y + 2);
     setColor(0x16);
-    cout << s << b << s;
+    cout << s << m << s;
     setColor(0x17);
 }
 void erasePlayer(int x, int y)
@@ -1053,60 +1083,80 @@ void movePlayerUp()
 {
     if (playerY > 2)
     {
-        if (getCharxy(playerX - 2, playerY - 1) == '*')
+        if (getCharxy(playerX - 2, playerY - 1) == m)
         {
             movePlayerRight();
         }
-        else if (getCharxy(playerX + 2, playerY - 1) == '*')
+        else if (getCharxy(playerX + 2, playerY - 1) == m)
         {
             movePlayerLeft();
         }
         erasePlayer(playerX, playerY);
         playerY--;
-        drawPlayer(playerX, playerY);
     }
 }
 void movePlayerDown()
 {
-    if (playerY <= 21)
+    if (playerY <= 26)
     {
-        if (screen[playerY + 1][playerX - 2] == '*' || screen[playerY + 3][playerX - 1] == '*')
+        if (screen[playerY + 1][playerX - 2] == m || screen[playerY + 3][playerX - 1] == m)
         {
             movePlayerRight();
         }
-        else if (screen[playerY + 1][playerX + 2] == '*' || screen[playerY + 3][playerX + 1] == '*')
+        else if (screen[playerY + 1][playerX + 2] == m || screen[playerY + 3][playerX + 1] == m)
         {
             movePlayerLeft();
         }
         erasePlayer(playerX, playerY);
         playerY++;
-        drawPlayer(playerX, playerY);
     }
 }
 void movePlayerLeft()
 {
-    if (screen[playerY][playerX - 3] != '*' && screen[playerY + 2][playerX - 2] != '*')
+    if (screen[playerY][playerX - 3] != m && screen[playerY + 2][playerX - 2] != m)
     {
         erasePlayer(playerX, playerY);
         playerX--;
-        drawPlayer(playerX, playerY);
     }
 }
 void movePlayerRight()
 {
-    if (screen[playerY][playerX + 3] != '*' && screen[playerY + 2][playerX + 2] != '*')
+    if (screen[playerY][playerX + 3] != m && screen[playerY + 2][playerX + 2] != m)
     {
         erasePlayer(playerX, playerY);
         playerX++;
-        drawPlayer(playerX, playerY);
+    }
+}
+void handleRocketLasorBulletCollision()
+{
+    for (int i = currentLaserBulletsCount - 1; i >= 0; i--)
+    {
+        for (int j = currentCannonRocketCount - 1; j >= 0; j--)
+        {
+            if ((playerLaserY[i] == cannonRocketY[j] + 1) && (playerLaserX[i] == cannonRocketX[j]))
+            {
+                removeLaserBullet(i);
+                removeCannonRocket(j);
+            }
+        }
+        for (int j = currentBattleShipRocketsCount - 1; j >= 0; j--)
+        {
+            if ((playerLaserY[i] == battleShipRocketY[j] + 1) && (playerLaserX[i] == battleShipRocketY[j]))
+            {
+                removeLaserBullet(i);
+                removeBattleShipRocket(j);
+            }
+        }
     }
 }
 void startGame()
 {
     init();
     drawPlayer(playerX, playerY);
+
     while (gameRunning)
     {
+        startTime = clock();
         if (GetAsyncKeyState(VK_LEFT))
         {
             movePlayerLeft();
@@ -1127,21 +1177,28 @@ void startGame()
         {
             createLaserBullet(playerX, playerY);
         }
-        if (screen[playerY - 1][playerX + 2] == '*')
+        if (screen[playerY - 1][playerX + 2] == m)
         {
             movePlayerLeft();
         }
-        if (screen[playerY - 1][playerX - 2] == '*')
+        if (screen[playerY - 1][playerX - 2] == m)
         {
             movePlayerRight();
         }
+        moveMazeAndGameElements();
+        handleRandomEnemySpawn();
         helicopterHandler();
         battleShipHandler();
         cannonHandler();
-        moveMazeAndGameElements();
+        handleRocketLasorBulletCollision();
         moveLaserBullets();
+        handleRocketLasorBulletCollision();
+        drawPlayer(playerX, playerY);
         printStats();
-        Sleep(25);
+        stopTime = clock();
+        timeElapsed = double(stopTime - startTime);
+        if (timeElapsed < 60)
+            Sleep(60 - timeElapsed);
     }
     setColor(0x7);
 }
