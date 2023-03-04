@@ -6,7 +6,7 @@
 using namespace std;
 
 // globals
-#define numOfLaserBullets 20
+#define numOfLaserBullets 50
 #define numOfBattleShips 10
 #define numOfHelicopters 10
 #define numOfCannons 10
