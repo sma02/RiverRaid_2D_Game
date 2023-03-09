@@ -10,9 +10,6 @@ using namespace std;
 #define numOfBattleShips 10
 #define numOfHelicopters 10
 #define numOfCannons 10
-int playerLaserX[numOfLaserBullets];
-int playerLaserY[numOfLaserBullets];
-int currentLaserBulletsCount = 0;
 int mazeMoveCount = 0;
 int score = 0;
 int currentHealth = 100;
@@ -28,6 +25,7 @@ char screen[30][81];
 char screenSingleLine[81];
 char c254 = 254;
 char c219 = 219;
+char m = 219;
 
 // mazes
 char maze1[30][81] = {
@@ -155,6 +153,14 @@ char maze4[30][81] = {
     "*************                                                      *************",
     "************                                                        ************"};
 
+// player variables
+int playerX = 20, playerY = 15;
+int currentPlayer = 2;
+int playerLaserX[numOfLaserBullets];
+int playerLaserY[numOfLaserBullets];
+int currentPlayerLaserColor=0x1a;
+int currentLaserBulletsCount = 0;
+
 // battleShip variables
 int battleShipsX[numOfBattleShips];
 int battleShipsY[numOfBattleShips];
@@ -189,8 +195,6 @@ int currentCannonRocketCount = 0;
 int currentCannonCount = 0;
 
 string menuItems[] = {"start game", "options", "exit"};
-int playerX = 20, playerY = 15;
-char m = 219;
 
 // function prototypes
 void printLogo();
@@ -211,6 +215,9 @@ void movePlayerDown();
 void movePlayerLeft();
 void movePlayerRight();
 void drawPlayer(int x, int y);
+void printPlayer1(int x, int y);
+void printPlayer2(int x, int y);
+void printPlayer3(int x, int y);
 void erasePlayer(int x, int y);
 void createLaserBullet(int x, int y);
 void moveLaserBullets();
@@ -385,9 +392,20 @@ void removeElementFromBoolArray(bool arr[], int elementIndex, int arraySize)
 void createLaserBullet(int x, int y)
 {
     // x += 3;
-    y -= 1;
+    if (currentPlayer == 0)
+    {
+        y -= 1;
+    }
+    else if (currentPlayer == 1)
+    {
+        y -= 2;
+    }
+        else if (currentPlayer == 2)
+    {
+        y -= 2;
+    }
     gotoxy(x, y);
-    setColor(0x1E);
+    setColor(currentPlayerLaserColor);
     cout << '|';
     setColor(0x17);
     playerLaserX[currentLaserBulletsCount] = x;
@@ -504,7 +522,7 @@ void moveLaserBullets()
             cout << ' ';
             playerLaserY[i]--;
             gotoxy(playerLaserX[i], playerLaserY[i]);
-            setColor(0x1E);
+            setColor(currentPlayerLaserColor);
             cout << '|';
             setColor(0x17);
         }
@@ -590,6 +608,7 @@ void moveMazeAndGameElements()
         moveBattleShipVertically();
         moveHelicopterVertically();
         moveCannonVertically();
+        drawPlayer(playerX, playerY);
         mazeMoveCount = 0;
     }
 }
@@ -1033,7 +1052,21 @@ void removeCannonRocket(int i)
 }
 void drawPlayer(int x, int y)
 {
-    char b = 254;
+    if (currentPlayer == 0)
+    {
+        printPlayer1(x, y);
+    }
+    else if (currentPlayer == 1)
+    {
+        printPlayer2(x, y);
+    }
+        else if (currentPlayer == 2)
+    {
+        printPlayer3(x, y);
+    }
+}
+void printPlayer1(int x, int y)
+{
     char s = 205;
     char t = 30;
     setColor(0x16);
@@ -1053,6 +1086,52 @@ void drawPlayer(int x, int y)
     gotoxy(x - 1, y + 2);
     setColor(0x16);
     cout << s << m << s;
+    setColor(0x17);
+}
+void printPlayer2(int x, int y)
+{
+    char s = 205;
+    char t = 30;
+    setColor(0x16);
+    gotoxy(x, y - 1);
+    cout << m;
+    setColor(0x17);
+    gotoxy(x - 2, y);
+    setColor(0x16);
+    cout << s << s;
+    setColor(0x17);
+    cout << m;
+    setColor(0x16);
+    cout << s << s;
+    setColor(0x17);
+    gotoxy(x, y + 1);
+    cout << m;
+    gotoxy(x - 1, y + 2);
+    setColor(0x16);
+    cout << s << m << s;
+    setColor(0x17);
+}
+void printPlayer3(int x, int y)
+{
+    char s = 205;
+    char t = 30;
+    setColor(0x16);
+    gotoxy(x, y - 1);
+    cout << '^';
+    setColor(0x17);
+    gotoxy(x - 2, y);
+    setColor(0x16);
+    cout << '/' << '/';
+    setColor(0x17);
+    cout << '|';
+    setColor(0x16);
+    cout << '\\' << '\\';
+    setColor(0x17);
+    gotoxy(x, y + 1);
+    cout << '|';
+    gotoxy(x - 1, y + 2);
+    setColor(0x16);
+    cout << '/' << '|' << '\\';
     setColor(0x17);
 }
 void erasePlayer(int x, int y)
@@ -1093,6 +1172,7 @@ void movePlayerUp()
         }
         erasePlayer(playerX, playerY);
         playerY--;
+        drawPlayer(playerX, playerY);
     }
 }
 void movePlayerDown()
@@ -1109,6 +1189,7 @@ void movePlayerDown()
         }
         erasePlayer(playerX, playerY);
         playerY++;
+        drawPlayer(playerX, playerY);
     }
 }
 void movePlayerLeft()
@@ -1117,6 +1198,7 @@ void movePlayerLeft()
     {
         erasePlayer(playerX, playerY);
         playerX--;
+        drawPlayer(playerX, playerY);
     }
 }
 void movePlayerRight()
@@ -1125,6 +1207,7 @@ void movePlayerRight()
     {
         erasePlayer(playerX, playerY);
         playerX++;
+        drawPlayer(playerX, playerY);
     }
 }
 void handleRocketLasorBulletCollision()
@@ -1141,7 +1224,7 @@ void handleRocketLasorBulletCollision()
         }
         for (int j = currentBattleShipRocketsCount - 1; j >= 0; j--)
         {
-            if ((playerLaserY[i] == battleShipRocketY[j] + 1) && (playerLaserX[i] == battleShipRocketY[j]))
+            if ((playerLaserY[i] == battleShipRocketY[j] + 1) && (playerLaserX[i] == battleShipRocketX[j]))
             {
                 removeLaserBullet(i);
                 removeBattleShipRocket(j);
@@ -1193,7 +1276,7 @@ void startGame()
         handleRocketLasorBulletCollision();
         moveLaserBullets();
         handleRocketLasorBulletCollision();
-        drawPlayer(playerX, playerY);
+        // drawPlayer(playerX, playerY);
         printStats();
         stopTime = clock();
         timeElapsed = double(stopTime - startTime);
