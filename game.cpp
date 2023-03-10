@@ -12,7 +12,8 @@ using namespace std;
 #define numOfCannons 10
 int mazeMoveCount = 0;
 int score = 0;
-int currentHealth = 100;
+int currentHealth;
+int previousHealth;
 bool gameRunning = false;
 int mazeEnemyCount = 0;
 int mazeRandomEnemy = 30;
@@ -158,7 +159,7 @@ int playerX = 20, playerY = 15;
 int currentPlayer = 2;
 int playerLaserX[numOfLaserBullets];
 int playerLaserY[numOfLaserBullets];
-int currentPlayerLaserColor=0x1a;
+int currentPlayerLaserColor = 0x1a;
 int currentLaserBulletsCount = 0;
 
 // battleShip variables
@@ -208,6 +209,7 @@ string getStringAtxy(short int x, short int y);
 void printMenuItems(int offset, string items[], int arraySize);
 void movePointer(int previousPos, int pointerPos, int offset, short color);
 void copyCharArray(char arr1[], char arr2[], int size);
+int digitCount(int number);
 void handleRandomEnemySpawn();
 
 void movePlayerUp();
@@ -299,7 +301,7 @@ void printDebugInfo()
 }
 void printStats()
 {
-    gotoxy(82, 0);
+    /*gotoxy(82, 0);
     if (currentHealth == 100)
     {
         cout << "Health: " << currentHealth << endl;
@@ -308,8 +310,36 @@ void printStats()
     {
         cout << "Health:  " << currentHealth << endl;
     }
+    */
+    if (previousHealth != currentHealth)
+    {
+        setColor(0x88);
+        if (previousHealth == 100)
+        {
+            gotoxy(81, 5);
+        }
+        else
+        {
+            gotoxy(84 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
+        }
+        cout << previousHealth << '%';
+
+        previousHealth = currentHealth;
+
+        char c254 = 254;
+        for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
+        {
+            gotoxy(83, 5 + i);
+            cout << c254;
+        }
+        setColor(0x84);
+        gotoxy(84 - digitCount(currentHealth), 5 + (100 - currentHealth) * 20 / 100);
+        cout << currentHealth << '%';
+    }
+    setColor(0x87);
     gotoxy(82, 1);
     cout << "Score: " << score;
+    setColor(0x17);
 }
 int main()
 {
@@ -347,6 +377,7 @@ void init()
     mazePos = 0;
     mazeMoveCount = 0;
     currentHealth = 100;
+    previousHealth = 0;
     mazeNumber = 0;
     score = 0;
     setColor(0x22);
@@ -357,15 +388,25 @@ void init()
             screen[i][j] = maze1[i][j];
         }
     }
-    setColor(0x88);
     char c254 = 254;
-    for (int i = 0; i < 30; i++)
+    setColor(0x88);
+    for (int i = 0; i < 30; i++) // stats window
     {
-        gotoxy(80, i);
-        cout << c254;
-        gotoxy(81, i);
+        for (int j = 80; j < 110; j++)
+        {
+            gotoxy(j, i);
+            cout << c254;
+        }
+    }
+    setColor(0x44);
+    for (int i = 0; i < 20; i++) // health bar
+    {
+        gotoxy(83, 5 + i);
         cout << c254;
     }
+    setColor(0x84); // health text
+    gotoxy(81, 26);
+    cout << "Health";
     setColor(0x17);
 }
 void copyCharArray(char arr1[], char arr2[], int size)
@@ -400,7 +441,7 @@ void createLaserBullet(int x, int y)
     {
         y -= 2;
     }
-        else if (currentPlayer == 2)
+    else if (currentPlayer == 2)
     {
         y -= 2;
     }
@@ -1060,7 +1101,7 @@ void drawPlayer(int x, int y)
     {
         printPlayer2(x, y);
     }
-        else if (currentPlayer == 2)
+    else if (currentPlayer == 2)
     {
         printPlayer3(x, y);
     }
@@ -1403,6 +1444,16 @@ void printLogo()
 void setColor(short color)
 {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+int digitCount(int number)
+{
+    int count = 0;
+    while (number != 0)
+    {
+        number /= 10;
+        count++;
+    }
+    return count;
 }
 void gotoxy(int x, int y)
 {
