@@ -6,7 +6,7 @@
 using namespace std;
 
 // globals
-#define numOfLaserBullets 50
+#define numOfLaserBullets 100
 #define numOfBattleShips 10
 #define numOfHelicopters 10
 #define numOfCannons 10
@@ -27,7 +27,34 @@ char screenSingleLine[81];
 char c254 = 254;
 char c219 = 219;
 char m = 219;
-
+// hanger
+char hanger[26][101] =
+    {"****************************************************************************************************",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                                                                                  *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "****************************************************************************************************"};
 // mazes
 char maze1[30][81] = {
     "***********                                                          ***********",
@@ -159,7 +186,7 @@ int playerX = 20, playerY = 15;
 int currentPlayer = 2;
 int playerLaserX[numOfLaserBullets];
 int playerLaserY[numOfLaserBullets];
-int currentPlayerLaserColor = 0x1a;
+int currentPlayerLaserColor = 0x0;
 int currentLaserBulletsCount = 0;
 
 // battleShip variables
@@ -225,6 +252,14 @@ void createLaserBullet(int x, int y);
 void moveLaserBullets();
 bool checkCollisionWithPlayer(int x, int y);
 void handleRocketLasorBulletCollision();
+// player on foot
+void playerMoveOnFootUp(int &playerX, int &playerY);
+void playerMoveOnFootDown(int &playerX, int &playerY);
+void playerMoveOnFootLeft(int &playerX, int &playerY);
+void playerMoveOnFootRight(int &playerX, int &playerY);
+int handleBoxHighlight(int playerX, int playerY, int previousState);
+void printPlayerOnFoot(int playerX, int playerY);
+void selectPlane();
 
 void eraseGeneric(int x, int y, int rows, int cols);
 
@@ -358,9 +393,254 @@ int main()
         if (choice == 0)
         {
             cin.sync();
+            selectPlane();
             startGame();
         }
     }
+}
+string planeInfo[] = {
+    "F-32",
+    "Lasor:Yellow",
+    "Lasors:2",
+    "F-47",
+    "Lasor:Red",
+    "Lasors:1",
+    "F-420",
+    "Lasor:Blue",
+    "Lasors:1",
+};
+void printPlaneInfo(int x, int y, int index)
+{
+    gotoxy(x, y);
+    cout << planeInfo[3 * index];
+    gotoxy(x, y + 1);
+    cout << planeInfo[3 * index + 1];
+    gotoxy(x, y + 2);
+    cout << planeInfo[3 * index + 2];
+}
+void buildHanger()
+{
+    for (int y = 0; y < 26; y++)
+    {
+        gotoxy(5, y + 2);
+        for (int x = 0; x < 100; x++)
+        {
+            if (hanger[y][x] == '*')
+            {
+                setColor(0x77);
+            }
+            else
+            {
+                setColor(0x88);
+            }
+            cout << hanger[y][x];
+        }
+    }
+    setColor(0x7);
+
+    int x = 52, y = 21;
+    char s = 205;
+    char t = 30;
+    setColor(0x87);
+    printPlaneInfo(44, 5, 0);
+    setColor(0x86); // plane1
+    gotoxy(x, y - 1);
+    cout << t;
+    setColor(0x87);
+    gotoxy(x - 2, y);
+    setColor(0x86);
+    cout << s << s;
+    setColor(0x87);
+    cout << m;
+    setColor(0x86);
+    cout << s << s;
+    setColor(0x07);
+    gotoxy(x, y + 1);
+    cout << m;
+    gotoxy(x - 1, y + 2);
+    setColor(0x86);
+    cout << s << m << s;
+    setColor(0x87);
+
+    x = 92;
+    y = 21;
+    printPlaneInfo(86, 5, 1);
+    setColor(0x86); // plane2
+    gotoxy(x, y - 1);
+    cout << m;
+    setColor(0x87);
+    gotoxy(x - 2, y);
+    setColor(0x86);
+    cout << s << s;
+    setColor(0x87);
+    cout << m;
+    setColor(0x86);
+    cout << s << s;
+    setColor(0x87);
+    gotoxy(x, y + 1);
+    cout << m;
+    gotoxy(x - 1, y + 2);
+    setColor(0x86);
+    cout << s << m << s;
+    setColor(0x87);
+
+    x = 72;
+    y = 21;
+    printPlaneInfo(66, 5, 2);
+    setColor(0x86); // plane 3
+    gotoxy(x, y - 1);
+    cout << '^';
+    setColor(0x87);
+    gotoxy(x - 2, y);
+    setColor(0x86);
+    cout << '/' << '/';
+    setColor(0x87);
+    cout << '|';
+    setColor(0x86);
+    cout << '\\' << '\\';
+    setColor(0x87);
+    gotoxy(x, y + 1);
+    cout << '|';
+    gotoxy(x - 1, y + 2);
+    setColor(0x86);
+    cout << '/' << '|' << '\\';
+    setColor(0x87);
+}
+int handleBoxHighlight(int playerX, int playerY, int previousState)
+{
+    int currentState = -1;
+    if (playerX >= 42 && playerX < 63 && playerY >= 21)
+    {
+        setColor(0x86);
+        printPlaneInfo(44, 5, 0);
+        gotoxy(41, 9);
+        cout << "Press ENTER to Confirm";
+        currentState = 1;
+    }
+    else if (playerX >= 84 && playerX < 104 && playerY >= 21)
+    {
+        setColor(0x86);
+        printPlaneInfo(86, 5, 1);
+        gotoxy(82, 9);
+        cout << "Press ENTER to Confirm";
+        currentState = 2;
+    }
+    else if (playerX >= 64 && playerX < 83 && playerY >= 21)
+    {
+        setColor(0x86);
+        printPlaneInfo(66, 5, 2);
+        gotoxy(62, 9);
+        cout << "Press ENTER to Confirm";
+        currentState = 3;
+    }
+    else if (previousState == 1)
+    {
+        setColor(0x87);
+        printPlaneInfo(44, 5, 0);
+        eraseGeneric(41, 9, 22, 1);
+    }
+    else if (previousState == 2)
+    {
+        setColor(0x87);
+        printPlaneInfo(86, 5, 1);
+        eraseGeneric(82, 9, 22, 1);
+    }
+    else if (previousState == 3)
+    {
+        setColor(0x87);
+        printPlaneInfo(66, 5, 2);
+        eraseGeneric(62, 9, 22, 1);
+    }
+    setColor(0x87);
+    return currentState;
+}
+void selectPlane()
+{
+    int playerOnFootX = 10;
+    int playerOnFootY = 10;
+    int previousState = 0;
+    system("cls");
+    buildHanger();
+    while (1)
+    {
+        if (GetAsyncKeyState(VK_LEFT))
+        {
+            playerMoveOnFootLeft(playerOnFootX, playerOnFootY);
+        }
+        else if (GetAsyncKeyState(VK_RIGHT))
+        {
+            playerMoveOnFootRight(playerOnFootX, playerOnFootY);
+        }
+        if (GetAsyncKeyState(VK_UP))
+        {
+            playerMoveOnFootUp(playerOnFootX, playerOnFootY);
+        }
+        else if (GetAsyncKeyState(VK_DOWN))
+        {
+            playerMoveOnFootDown(playerOnFootX, playerOnFootY);
+        }
+        previousState = handleBoxHighlight(playerOnFootX, playerOnFootY, previousState);
+        if (GetAsyncKeyState(VK_RETURN) && previousState != -1)
+        {
+            currentPlayer = previousState;
+            if (currentPlayer == 1)
+            {
+                currentPlayerLaserColor = 0x1e;
+            }
+            else if (currentPlayer == 2)
+            {
+                currentPlayerLaserColor = 0x1c;
+            }
+            else if (currentPlayer == 3)
+            {
+                currentPlayerLaserColor = 0x19;
+            }
+            break;
+        }
+        Sleep(100);
+    }
+}
+void playerMoveOnFootUp(int &playerX, int &playerY)
+{
+    if (getCharxy(playerX, playerY - 1) == ' ')
+    {
+        eraseGeneric(playerX, playerY, 1, 1);
+        playerY--;
+        printPlayerOnFoot(playerX, playerY);
+    }
+}
+void playerMoveOnFootDown(int &playerX, int &playerY)
+{
+    if (getCharxy(playerX, playerY + 1) == ' ')
+    {
+        eraseGeneric(playerX, playerY, 1, 1);
+        playerY++;
+        printPlayerOnFoot(playerX, playerY);
+    }
+}
+
+void playerMoveOnFootLeft(int &playerX, int &playerY)
+{
+    if (getCharxy(playerX - 1, playerY) == ' ')
+    {
+        eraseGeneric(playerX, playerY, 1, 1);
+        playerX--;
+        printPlayerOnFoot(playerX, playerY);
+    }
+}
+void playerMoveOnFootRight(int &playerX, int &playerY)
+{
+    if (getCharxy(playerX + 1, playerY) == ' ')
+    {
+        eraseGeneric(playerX, playerY, 1, 1);
+        playerX++;
+        printPlayerOnFoot(playerX, playerY);
+    }
+}
+void printPlayerOnFoot(int playerX, int playerY)
+{
+    gotoxy(playerX, playerY);
+    cout << (char)248;
 }
 void init()
 {
@@ -433,18 +713,7 @@ void removeElementFromBoolArray(bool arr[], int elementIndex, int arraySize)
 void createLaserBullet(int x, int y)
 {
     // x += 3;
-    if (currentPlayer == 0)
-    {
-        y -= 1;
-    }
-    else if (currentPlayer == 1)
-    {
-        y -= 2;
-    }
-    else if (currentPlayer == 2)
-    {
-        y -= 2;
-    }
+    y -= 2;
     gotoxy(x, y);
     setColor(currentPlayerLaserColor);
     cout << '|';
@@ -1093,15 +1362,15 @@ void removeCannonRocket(int i)
 }
 void drawPlayer(int x, int y)
 {
-    if (currentPlayer == 0)
+    if (currentPlayer == 1)
     {
         printPlayer1(x, y);
     }
-    else if (currentPlayer == 1)
+    else if (currentPlayer == 2)
     {
         printPlayer2(x, y);
     }
-    else if (currentPlayer == 2)
+    else if (currentPlayer == 3)
     {
         printPlayer3(x, y);
     }
@@ -1299,7 +1568,21 @@ void startGame()
         }
         if (GetAsyncKeyState(VK_SPACE))
         {
-            createLaserBullet(playerX, playerY);
+            if (currentPlayer == 1)
+            {
+                createLaserBullet(playerX - 1, playerY);
+                createLaserBullet(playerX + 1, playerY);
+            }
+            else if (currentPlayer == 2)
+            {
+                createLaserBullet(playerX - 1, playerY);
+                createLaserBullet(playerX, playerY);
+                createLaserBullet(playerX + 1, playerY);
+            }
+            else
+            {
+                createLaserBullet(playerX, playerY);
+            }
         }
         if (screen[playerY - 1][playerX + 2] == m)
         {
