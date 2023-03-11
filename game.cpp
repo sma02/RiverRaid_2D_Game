@@ -181,6 +181,18 @@ char maze4[30][81] = {
     "*************                                                      *************",
     "************                                                        ************"};
 
+string planeInfo[] = {
+    "F-32",
+    "Lasor:Yellow",
+    "Lasors:2",
+    "F-47",
+    "Lasor:Red",
+    "Lasors:3",
+    "F-420",
+    "Lasor:Blue",
+    "Lasors:1",
+};
+
 // player variables
 int playerX = 20, playerY = 15;
 int currentPlayer = 2;
@@ -188,6 +200,15 @@ int playerLaserX[numOfLaserBullets];
 int playerLaserY[numOfLaserBullets];
 int currentPlayerLaserColor = 0x0;
 int currentLaserBulletsCount = 0;
+
+// health powerup
+int healthPowerupX = 50;
+int healthPowerupY = 0;
+bool healthPowerUpMovement = true;
+bool healthPowerUpVisibility = false;
+int healthPowerupCount = 0;
+int healthPowerUpRandomSpawn = 100;
+int healthPowerUpRandomSpawnCount = 0;
 
 // battleShip variables
 int battleShipsX[numOfBattleShips];
@@ -262,6 +283,7 @@ void printPlayerOnFoot(int playerX, int playerY);
 void selectPlane();
 
 void eraseGeneric(int x, int y, int rows, int cols);
+void destroyGeneric(int x, int y, int rows, int cols, int duration);
 
 void removeElementFromIntArray(int arr[], int elementIndex, int arraySize);
 void removeElementFromBoolArray(bool arr[], int elementIndex, int arraySize);
@@ -307,6 +329,11 @@ bool checkCannonRocketBound(int i);
 void removeCannon(int i);
 void removeCannonRocket(int i);
 bool checkCollisionWithCannon(int i);
+
+void moveHealthPowerupHorizontally();
+void healthPowerupHandler();
+void printHealthPowerup(int x, int y);
+void moveHealthPowerupVertically();
 
 void addScore(int value);
 void decreasePlayerHealth(int value);
@@ -358,10 +385,8 @@ void printStats()
             gotoxy(84 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
         }
         cout << previousHealth << '%';
-
         previousHealth = currentHealth;
-
-        char c254 = 254;
+        setColor(0x88);
         for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
         {
             gotoxy(83, 5 + i);
@@ -398,17 +423,6 @@ int main()
         }
     }
 }
-string planeInfo[] = {
-    "F-32",
-    "Lasor:Yellow",
-    "Lasors:2",
-    "F-47",
-    "Lasor:Red",
-    "Lasors:1",
-    "F-420",
-    "Lasor:Blue",
-    "Lasors:1",
-};
 void printPlaneInfo(int x, int y, int index)
 {
     gotoxy(x, y);
@@ -556,11 +570,12 @@ int handleBoxHighlight(int playerX, int playerY, int previousState)
 }
 void selectPlane()
 {
-    int playerOnFootX = 10;
+    int playerOnFootX = 60;
     int playerOnFootY = 10;
     int previousState = 0;
     system("cls");
     buildHanger();
+    printPlayerOnFoot(playerOnFootX, playerOnFootY);
     while (1)
     {
         if (GetAsyncKeyState(VK_LEFT))
@@ -618,7 +633,6 @@ void playerMoveOnFootDown(int &playerX, int &playerY)
         printPlayerOnFoot(playerX, playerY);
     }
 }
-
 void playerMoveOnFootLeft(int &playerX, int &playerY)
 {
     if (getCharxy(playerX - 1, playerY) == ' ')
@@ -668,7 +682,6 @@ void init()
             screen[i][j] = maze1[i][j];
         }
     }
-    char c254 = 254;
     setColor(0x88);
     for (int i = 0; i < 30; i++) // stats window
     {
@@ -678,11 +691,11 @@ void init()
             cout << c254;
         }
     }
-    setColor(0x44);
+    setColor(0x84);
     for (int i = 0; i < 20; i++) // health bar
     {
         gotoxy(83, 5 + i);
-        cout << c254;
+        cout << (char)219;
     }
     setColor(0x84); // health text
     gotoxy(81, 26);
@@ -819,13 +832,14 @@ void moveLaserBullets()
 {
     for (int i = currentLaserBulletsCount - 1; i >= 0; i--)
     {
-        if (playerLaserY[i] - 1 <= 0 || checkCollisionWithBattleShip(i) || checkCollisionWithHelicopter(i) || checkCollisionWithCannon(i))
+        if (checkCollisionWithBattleShip(i) || checkCollisionWithHelicopter(i) || checkCollisionWithCannon(i))
         {
+            Beep(1000, 5);
             removeLaserBullet(i);
             continue;
         }
         char next = getCharxy(playerLaserX[i], playerLaserY[i] - 1);
-        if (next == ' ' || next == '.')
+        if (next == ' ' && next != '.')
         {
 
             gotoxy(playerLaserX[i], playerLaserY[i]);
@@ -844,7 +858,6 @@ void moveLaserBullets()
 }
 void moveMaze()
 {
-    char c = 219;
     if (mazeMoveCount == 2)
     {
         mazePos++;
@@ -918,6 +931,7 @@ void moveMazeAndGameElements()
         moveBattleShipVertically();
         moveHelicopterVertically();
         moveCannonVertically();
+        healthPowerupHandler();
         drawPlayer(playerX, playerY);
         mazeMoveCount = 0;
     }
@@ -1049,6 +1063,7 @@ void createCannon()
 }
 void removeBattleShip(int i)
 {
+    destroyGeneric(battleShipsX[i] - 1, battleShipsY[i], 3, 1, 10);
     eraseGeneric(battleShipsX[i] - 2, battleShipsY[i], 5, 1);
     removeElementFromIntArray(battleShipsX, i, currentBattleShipsCount);
     removeElementFromIntArray(battleShipsY, i, currentBattleShipsCount);
@@ -1058,6 +1073,7 @@ void removeBattleShip(int i)
 }
 void removeHelicopter(int i)
 {
+    destroyGeneric(helicoptersX[i], helicoptersY[i], 1, 1, 10);
     eraseGeneric(helicoptersX[i], helicoptersY[i], 1, 1);
     removeElementFromIntArray(helicoptersX, i, currenthelicoptersCount);
     removeElementFromIntArray(helicoptersY, i, currenthelicoptersCount);
@@ -1067,8 +1083,10 @@ void removeHelicopter(int i)
 }
 void removeCannon(int i)
 {
+    destroyGeneric(cannonX[i], cannonY[i] + 1, 1, 1, 1);
+    destroyGeneric(cannonX[i] - 1, cannonY[i], 3, 1, 2);
+    destroyGeneric(cannonX[i], cannonY[i] - 1, 1, 1, 1);
     eraseGeneric(cannonX[i] - 1, cannonY[i] - 1, 3, 3);
-
     removeElementFromIntArray(cannonX, i, currentCannonCount);
     removeElementFromIntArray(cannonY, i, currentCannonCount);
     removeElementFromIntArray(cannonRocketsReady, i, currentCannonCount);
@@ -1138,7 +1156,7 @@ void battleShipHandler()
     }
     for (int i = currentBattleShipRocketsCount - 1; i >= 0; i--)
     {
-        char next = getCharxy(battleShipRocketX[i], battleShipRocketY[i] + 1);
+        char next = screen[battleShipRocketY[i] + 1][battleShipRocketX[i]];
         if (checkCollisionWithPlayer(battleShipRocketX[i], battleShipRocketY[i]))
         {
             removeBattleShipRocket(i);
@@ -1174,7 +1192,7 @@ void helicopterHandler()
     }
     for (int i = currenthelicoptersBulletsCount - 1; i >= 0; i--)
     {
-        char next = getCharxy(helicopterBulletsX[i], helicopterBulletsY[i] + 1);
+        char next = screen[helicopterBulletsY[i] + 1][helicopterBulletsX[i]];
         if (checkCollisionWithPlayer(helicopterBulletsX[i], helicopterBulletsY[i]))
         {
             removeHelicopterBullet(i);
@@ -1223,6 +1241,93 @@ void cannonHandler()
             removeCannonRocket(i);
         }
     }
+}
+void healthPowerupHandler()
+{
+
+    healthPowerUpRandomSpawnCount++;
+    if (healthPowerUpRandomSpawnCount == healthPowerUpRandomSpawn)
+    {
+        healthPowerUpRandomSpawn = rand() % 300 + 50;
+        healthPowerUpMovement = rand() % 2;
+        healthPowerUpRandomSpawnCount = 0;
+        healthPowerUpVisibility = true;
+    }
+    if (healthPowerUpVisibility)
+    {
+        if (checkCollisionWithPlayer(healthPowerupX, healthPowerupY))
+        {
+            currentHealth += 20;
+            if (currentHealth > 100)
+            {
+                currentHealth = 100;
+            }
+            healthPowerUpVisibility = false;
+            eraseGeneric(healthPowerupX, healthPowerupY, 1, 1);
+            healthPowerupY = 0;
+            healthPowerupX = 50;
+        }
+        else if (healthPowerupY < 29)
+        {
+            healthPowerupCount++;
+            if (healthPowerupCount == 2)
+            {
+                healthPowerupCount = 0;
+                moveHealthPowerupHorizontally();
+                moveHealthPowerupVertically();
+            }
+        }
+        else
+        {
+            healthPowerUpVisibility = false;
+            eraseGeneric(healthPowerupX, healthPowerupY, 1, 1);
+            healthPowerupY = 0;
+            healthPowerupX = 50;
+        }
+    }
+}
+void moveHealthPowerupVertically()
+{
+    eraseGeneric(healthPowerupX, healthPowerupY, 1, 1);
+    healthPowerupY++;
+    printHealthPowerup(healthPowerupX, healthPowerupY);
+}
+void moveHealthPowerupHorizontally()
+{
+    if (screen[healthPowerupY][healthPowerupX - 1] == m)
+    {
+        healthPowerUpMovement = true;
+    }
+    else if (screen[healthPowerupY][healthPowerupX + 1] == m)
+    {
+        healthPowerUpMovement = false;
+    }
+    if (healthPowerUpMovement)
+    {
+        eraseGeneric(healthPowerupX, healthPowerupY, 1, 1);
+        healthPowerupX++;
+        printHealthPowerup(healthPowerupX, healthPowerupY);
+    }
+    else
+    {
+        eraseGeneric(healthPowerupX, healthPowerupY, 1, 1);
+        healthPowerupX--;
+        printHealthPowerup(healthPowerupX, healthPowerupY);
+    }
+}
+void printHealthPowerup(int x, int y)
+{
+    if (healthPowerupX % 2)
+    {
+        setColor(0x14);
+    }
+    else
+    {
+        setColor(0x16);
+    }
+    gotoxy(x, y);
+    cout << (char)3;
+    setColor(0x17);
 }
 bool checkCannonRocketBound(int i)
 {
@@ -1468,15 +1573,44 @@ void eraseGeneric(int x, int y, int rows, int cols)
         y++;
     }
 }
+void destroyGeneric(int x, int y, int rows, int cols, int duration)
+{
+    int initialY = y;
+    setColor(0x17);
+    for (int i = 0; i < cols; i++)
+    {
+        gotoxy(x, y);
+        for (int j = 0; j < rows; j++)
+        {
+            cout << '*';
+        }
+        y++;
+    }
+    y = initialY;
+    Sleep(duration / 2);
+    setColor(0x18);
+    for (int i = 0; i < cols; i++)
+    {
+        gotoxy(x, y);
+        for (int j = 0; j < rows; j++)
+        {
+            cout << 'x';
+        }
+        y++;
+    }
+    y = initialY;
+    Sleep(duration / 2);
+}
 void movePlayerUp()
 {
     if (playerY > 2)
     {
-        if (getCharxy(playerX - 2, playerY - 1) == m)
+
+        if (screen[playerY - 1][playerX - 2] == m)
         {
             movePlayerRight();
         }
-        else if (getCharxy(playerX + 2, playerY - 1) == m)
+        else if (screen[playerY - 1][playerX + 2] == m)
         {
             movePlayerLeft();
         }
@@ -1583,6 +1717,7 @@ void startGame()
             {
                 createLaserBullet(playerX, playerY);
             }
+            Beep(1700, 5);
         }
         if (screen[playerY - 1][playerX + 2] == m)
         {
@@ -1596,6 +1731,7 @@ void startGame()
         handleRandomEnemySpawn();
         helicopterHandler();
         battleShipHandler();
+        healthPowerupHandler();
         cannonHandler();
         handleRocketLasorBulletCollision();
         moveLaserBullets();
