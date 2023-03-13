@@ -296,7 +296,7 @@ void moveMaze();
 void startGame();
 void init();
 void printStats();
-
+// battleship function prototypes
 void printBattleShip(int x, int y);
 void createBattleShip();
 void battleShipHandler();
@@ -307,7 +307,7 @@ void moveBattleShipRocket(int i);
 void removeBattleShip(int i);
 void removeBattleShipRocket(int i);
 bool checkCollisionWithBattleShip(int i);
-
+// helicopter function prototypes
 void printHelicopter(int x, int y);
 void createHelicopter();
 void helicopterHandler();
@@ -318,7 +318,7 @@ void moveHelicopterBullet(int i);
 void removeHelicopter(int i);
 void removeHelicopterBullet(int i);
 bool checkCollisionWithHelicopter(int i);
-
+// cannon function prototypes
 void printCannon(int x, int y);
 void createCannon();
 void cannonHandler();
@@ -329,7 +329,7 @@ bool checkCannonRocketBound(int i);
 void removeCannon(int i);
 void removeCannonRocket(int i);
 bool checkCollisionWithCannon(int i);
-
+// health powerup function prototypes
 void moveHealthPowerupHorizontally();
 void healthPowerupHandler();
 void printHealthPowerup(int x, int y);
@@ -385,16 +385,28 @@ void printStats()
             gotoxy(84 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
         }
         cout << previousHealth << '%';
-        previousHealth = currentHealth;
-        setColor(0x88);
-        for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
+        if (previousHealth > currentHealth)
         {
-            gotoxy(83, 5 + i);
-            cout << c254;
+            setColor(0x88);
+            for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
+            {
+                gotoxy(83, 5 + i);
+                cout << c254;
+            }
+        }
+        else if ((previousHealth < currentHealth))
+        {
+            setColor(0x44);
+            for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--)
+            {
+                gotoxy(83, 5 + i);
+                cout << c254;
+            }
         }
         setColor(0x84);
         gotoxy(84 - digitCount(currentHealth), 5 + (100 - currentHealth) * 20 / 100);
         cout << currentHealth << '%';
+        previousHealth = currentHealth;
     }
     setColor(0x87);
     gotoxy(82, 1);
@@ -1680,7 +1692,6 @@ void startGame()
 {
     init();
     drawPlayer(playerX, playerY);
-
     while (gameRunning)
     {
         startTime = clock();
@@ -1772,13 +1783,29 @@ int takeChoice(int offset, int size, short color)
     while (1)
     {
         key = getch();
-        if (GetAsyncKeyState(VK_UP) && pointerPos > 0)
+        if (key == 224) // getch() function two values for arrow keys,so discarding first one
+        {
+            key = getch();
+        }
+        if (key == 72 && pointerPos == 0)
+        {
+            previousPos = pointerPos;
+            pointerPos = size - 1;
+            movePointer(previousPos, pointerPos, offset, color);
+        }
+        else if (key == 80 && pointerPos == size - 1)
+        {
+            previousPos = pointerPos;
+            pointerPos = 0;
+            movePointer(previousPos, pointerPos, offset, color);
+        }
+        else if (key == 72 && pointerPos > 0)
         {
             previousPos = pointerPos;
             pointerPos--;
             movePointer(previousPos, pointerPos, offset, color);
         }
-        else if (GetAsyncKeyState(VK_DOWN) && pointerPos < size - 1)
+        else if (key == 80 && pointerPos < size - 1)
         {
             previousPos = pointerPos;
             pointerPos++;
@@ -1793,17 +1820,16 @@ int takeChoice(int offset, int size, short color)
                 break;
             }
         }
-        if (GetAsyncKeyState(VK_ESCAPE))
+        else if (key == VK_ESCAPE)
         {
             key = -1;
             break;
         }
-        else if (GetAsyncKeyState(VK_RETURN))
+        else if (key == VK_RETURN)
         {
             key = pointerPos;
             break;
         }
-        Sleep(100);
     }
     setColor(0x7);
     return key;
