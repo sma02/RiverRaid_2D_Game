@@ -44,10 +44,10 @@ char hanger[26][101] =
      "*                                                                                                  *",
      "*                                                                                                  *",
      "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
+     "*                                   *                    *                    *                    *",
      "*                                   *                    *                    *                    *",
      "*                                   *                    *                    *                    *",
      "*                                   *                    *                    *                    *",
@@ -294,6 +294,7 @@ void collisionHandling(int x, int y, char next);
 void moveMazeAndGameElements();
 void moveMaze();
 void startGame();
+void handleEdges();
 void init();
 void printStats();
 // battleship function prototypes
@@ -453,11 +454,11 @@ void buildHanger()
         {
             if (hanger[y][x] == '*')
             {
-                setColor(0x77);
+                setColor(0x88);
             }
             else
             {
-                setColor(0x88);
+                setColor(0x0);
             }
             cout << hanger[y][x];
         }
@@ -467,117 +468,117 @@ void buildHanger()
     int x = 52, y = 21;
     char s = 205;
     char t = 30;
-    setColor(0x87);
+    setColor(0x07);
     printPlaneInfo(44, 5, 0);
-    setColor(0x86); // plane1
+    setColor(0x06); // plane1
     gotoxy(x, y - 1);
     cout << t;
-    setColor(0x87);
+    setColor(0x07);
     gotoxy(x - 2, y);
-    setColor(0x86);
+    setColor(0x06);
     cout << s << s;
-    setColor(0x87);
+    setColor(0x07);
     cout << m;
-    setColor(0x86);
+    setColor(0x06);
     cout << s << s;
     setColor(0x07);
     gotoxy(x, y + 1);
     cout << m;
     gotoxy(x - 1, y + 2);
-    setColor(0x86);
+    setColor(0x06);
     cout << s << m << s;
-    setColor(0x87);
+    setColor(0x07);
 
     x = 92;
     y = 21;
     printPlaneInfo(86, 5, 1);
-    setColor(0x86); // plane2
+    setColor(0x0e); // plane2
     gotoxy(x, y - 1);
     cout << m;
-    setColor(0x87);
+    setColor(0x07);
     gotoxy(x - 2, y);
-    setColor(0x86);
+    setColor(0x0e);
     cout << s << s;
-    setColor(0x87);
+    setColor(0x07);
     cout << m;
-    setColor(0x86);
+    setColor(0x0e);
     cout << s << s;
-    setColor(0x87);
+    setColor(0x07);
     gotoxy(x, y + 1);
     cout << m;
     gotoxy(x - 1, y + 2);
-    setColor(0x86);
+    setColor(0x0e);
     cout << s << m << s;
-    setColor(0x87);
+    setColor(0x07);
 
     x = 72;
     y = 21;
     printPlaneInfo(66, 5, 2);
-    setColor(0x86); // plane 3
+    setColor(0x06); // plane 3
     gotoxy(x, y - 1);
     cout << '^';
-    setColor(0x87);
+    setColor(0x07);
     gotoxy(x - 2, y);
-    setColor(0x86);
+    setColor(0x06);
     cout << '/' << '/';
-    setColor(0x87);
+    setColor(0x07);
     cout << '|';
-    setColor(0x86);
+    setColor(0x06);
     cout << '\\' << '\\';
-    setColor(0x87);
+    setColor(0x07);
     gotoxy(x, y + 1);
     cout << '|';
     gotoxy(x - 1, y + 2);
-    setColor(0x86);
+    setColor(0x06);
     cout << '/' << '|' << '\\';
-    setColor(0x87);
+    setColor(0x07);
 }
 int handleBoxHighlight(int playerX, int playerY, int previousState)
 {
     int currentState = -1;
     if (playerX >= 42 && playerX < 63 && playerY >= 21)
     {
-        setColor(0x86);
+        setColor(0x06);
         printPlaneInfo(44, 5, 0);
-        gotoxy(41, 9);
+        gotoxy(13, 15);
         cout << "Press ENTER to Confirm";
         currentState = 1;
     }
     else if (playerX >= 84 && playerX < 104 && playerY >= 21)
     {
-        setColor(0x86);
+        setColor(0x06);
         printPlaneInfo(86, 5, 1);
-        gotoxy(82, 9);
+        gotoxy(13, 15);
         cout << "Press ENTER to Confirm";
         currentState = 2;
     }
     else if (playerX >= 64 && playerX < 83 && playerY >= 21)
     {
-        setColor(0x86);
+        setColor(0x06);
         printPlaneInfo(66, 5, 2);
-        gotoxy(62, 9);
+        gotoxy(13, 15);
         cout << "Press ENTER to Confirm";
         currentState = 3;
     }
     else if (previousState == 1)
     {
-        setColor(0x87);
+        setColor(0x07);
         printPlaneInfo(44, 5, 0);
-        eraseGeneric(41, 9, 22, 1);
+        eraseGeneric(13, 15, 22, 1);
     }
     else if (previousState == 2)
     {
-        setColor(0x87);
+        setColor(0x07);
         printPlaneInfo(86, 5, 1);
-        eraseGeneric(82, 9, 22, 1);
+        eraseGeneric(13, 15, 22, 1);
     }
     else if (previousState == 3)
     {
-        setColor(0x87);
+        setColor(0x07);
         printPlaneInfo(66, 5, 2);
-        eraseGeneric(62, 9, 22, 1);
+        eraseGeneric(13, 15, 22, 1);
     }
-    setColor(0x87);
+    setColor(0x07);
     return currentState;
 }
 void selectPlane()
@@ -1517,25 +1518,33 @@ void printPlayer1(int x, int y)
 }
 void printPlayer2(int x, int y)
 {
-    char s = 205;
+    /*char s = 205;
     char t = 30;
-    setColor(0x16);
+    setColor(0x1e);
     gotoxy(x, y - 1);
     cout << m;
     setColor(0x17);
     gotoxy(x - 2, y);
-    setColor(0x16);
+    setColor(0x1e);
     cout << s << s;
     setColor(0x17);
     cout << m;
-    setColor(0x16);
+    setColor(0x1e);
     cout << s << s;
     setColor(0x17);
     gotoxy(x, y + 1);
     cout << m;
     gotoxy(x - 1, y + 2);
-    setColor(0x16);
+    setColor(0x1e);
     cout << s << m << s;
+    setColor(0x17);*/
+    setColor(0x1e);
+    gotoxy(x - 2, y - 1);
+    cout << (char)205 << (char)202 << (char)206 << (char)202 << (char)205;
+    gotoxy(x, y);
+    cout << (char)186;
+    gotoxy(x - 1, y + 1);
+    cout << (char)205 << (char)202 << (char)205;
     setColor(0x17);
 }
 void printPlayer3(int x, int y)
@@ -1563,15 +1572,26 @@ void printPlayer3(int x, int y)
 }
 void erasePlayer(int x, int y)
 {
-
-    gotoxy(x, y - 1);
-    cout << " ";
-    gotoxy(x - 2, y);
-    cout << "     ";
-    gotoxy(x, y + 1);
-    cout << " ";
-    gotoxy(x - 1, y + 2);
-    cout << "   ";
+    if (currentPlayer == 2)
+    {
+        gotoxy(x - 2, y - 1);
+        cout << "     ";
+        gotoxy(x, y);
+        cout << " ";
+        gotoxy(x - 1, y + 1);
+        cout << "   ";
+    }
+    else
+    {
+        gotoxy(x, y - 1);
+        cout << " ";
+        gotoxy(x - 2, y);
+        cout << "     ";
+        gotoxy(x, y + 1);
+        cout << " ";
+        gotoxy(x - 1, y + 2);
+        cout << "   ";
+    }
 }
 void eraseGeneric(int x, int y, int rows, int cols)
 {
@@ -1650,11 +1670,23 @@ void movePlayerDown()
 }
 void movePlayerLeft()
 {
-    if (screen[playerY][playerX - 3] != m && screen[playerY + 2][playerX - 2] != m)
+    if (currentPlayer == 2)
     {
-        erasePlayer(playerX, playerY);
-        playerX--;
-        drawPlayer(playerX, playerY);
+        if (screen[playerY-1][playerX -3] != m)
+        {
+            erasePlayer(playerX, playerY);
+            playerX--;
+            drawPlayer(playerX, playerY);
+        }
+    }
+    else
+    {
+        if (screen[playerY][playerX - 3] != m && screen[playerY + 2][playerX - 2] != m)
+        {
+            erasePlayer(playerX, playerY);
+            playerX--;
+            drawPlayer(playerX, playerY);
+        }
     }
 }
 void movePlayerRight()
@@ -1730,14 +1762,7 @@ void startGame()
             }
             Beep(1700, 5);
         }
-        if (screen[playerY - 1][playerX + 2] == m)
-        {
-            movePlayerLeft();
-        }
-        if (screen[playerY - 1][playerX - 2] == m)
-        {
-            movePlayerRight();
-        }
+        handleEdges();
         moveMazeAndGameElements();
         handleRandomEnemySpawn();
         helicopterHandler();
@@ -1755,6 +1780,31 @@ void startGame()
             Sleep(60 - timeElapsed);
     }
     setColor(0x7);
+}
+void handleEdges()
+{
+    if (currentPlayer == 2)
+    {
+        if (screen[playerY - 2][playerX + 2] == m)
+        {
+            movePlayerLeft();
+        }
+        if (screen[playerY - 2][playerX - 2] == m)
+        {
+            movePlayerRight();
+        }
+    }
+    else
+    {
+        if (screen[playerY - 1][playerX + 2] == m)
+        {
+            movePlayerLeft();
+        }
+        if (screen[playerY - 1][playerX - 2] == m)
+        {
+            movePlayerRight();
+        }
+    }
 }
 void printMenuItems(int offset, string items[], int arraySize)
 {
