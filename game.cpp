@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <time.h>
 #include <cmath>
+#include <fstream>
 using namespace std;
 
 // globals
@@ -22,6 +23,7 @@ clock_t startTime;
 clock_t stopTime;
 int mazePos = 0;
 int mazeNumber = 0;
+int previousMazeNumber = 0;
 char screen[30][81];
 char screenSingleLine[81];
 char c254 = 254;
@@ -195,7 +197,7 @@ string planeInfo[] = {
 
 // player variables
 int playerX = 20, playerY = 15;
-int currentPlayer = 2;
+int currentPlayer;
 int playerLaserX[numOfLaserBullets];
 int playerLaserY[numOfLaserBullets];
 int currentPlayerLaserColor = 0x0;
@@ -243,7 +245,8 @@ int currentCannonRocketCount = 0;
 
 int currentCannonCount = 0;
 
-string menuItems[] = {"start game", "options", "exit"};
+string mainMenuItems[] = {"start game", "options", "exit"};
+string pauseMenuItems[] = {"resume", "save game", "exit to main menu", "exit"};
 
 // function prototypes
 void printLogo();
@@ -293,10 +296,16 @@ void collisionHandling(int x, int y, char next);
 
 void moveMazeAndGameElements();
 void moveMaze();
+void drawMaze();
 void startGame();
+void pauseMenu();
+void drawStatsWindow();
 void handleEdges();
 void init();
 void printStats();
+void changeMazeCharacters(char theMaze[30][81]);
+void saveGame();
+void coordsArrayPush(fstream &file, int arrayX[], int arrayY[], int arraySize);
 // battleship function prototypes
 void printBattleShip(int x, int y);
 void createBattleShip();
@@ -338,6 +347,63 @@ void moveHealthPowerupVertically();
 
 void addScore(int value);
 void decreasePlayerHealth(int value);
+
+int main()
+{
+    changeMazeCharacters(maze1);
+    changeMazeCharacters(maze2);
+    changeMazeCharacters(maze3);
+    changeMazeCharacters(maze4);
+    int choice = 0;
+    consoleCursor(false);
+    while (choice != 2)
+    {
+        system("cls");
+        printLogo();
+        printMenuItems(12, mainMenuItems, 3);
+        choice = takeChoice(12, 3, 0x3);
+        if (choice == 0)
+        {
+            cin.sync();
+            selectPlane();
+            startGame();
+        }
+    }
+}
+void saveGame()
+{
+    fstream file;
+    char newline = '\n';
+    file.open("savegame.txt", ios::out);
+    if (file)
+    {
+        file << currentPlayer << ',' << playerX << ',' << playerY;
+        file << newline << previousMazeNumber << ',' << mazeNumber << ',' << mazePos;
+        file << newline << currentHealth << ',' << score << ',' << mazeEnemyCount;
+        file << newline << healthPowerUpVisibility << ',' << healthPowerupX << ',' << healthPowerupY << ',' << healthPowerUpRandomSpawnCount << ',' << healthPowerUpRandomSpawn << ',' << healthPowerupCount;
+        // battleships block
+        coordsArrayPush(file, battleShipsX, battleShipsY, currentBattleShipsCount);
+        coordsArrayPush(file, battleShipRocketX, battleShipRocketY, currentBattleShipRocketsCount);
+        // helicopters block
+        coordsArrayPush(file, helicoptersX, helicoptersY, currenthelicoptersCount);
+        coordsArrayPush(file, helicopterBulletsX, helicopterBulletsY, currenthelicoptersBulletsCount);
+        // cannon block
+        coordsArrayPush(file, cannonX, cannonY, currentCannonCount);
+        coordsArrayPush(file, cannonRocketX, cannonRocketY, currentCannonRocketCount);
+        // player bullets block
+        coordsArrayPush(file, playerLaserX, playerLaserY, currentLaserBulletsCount);
+    }
+    file.close();
+}
+void coordsArrayPush(fstream &file, int arrayX[], int arrayY[], int arraySize)
+{
+    char newline = '\n';
+    file << newline << arraySize;
+    for (int i = 0; i < arraySize; i++)
+    {
+        file << ',' << arrayX[i] << ',' << arrayY[i];
+    }
+}
 void changeMazeCharacters(char theMaze[30][81])
 {
     for (int y = 0; y < 30; y++)
@@ -364,77 +430,42 @@ void printDebugInfo()
 }
 void printStats()
 {
-    /*gotoxy(82, 0);
-    if (currentHealth == 100)
+    setColor(0x88);
+    if (previousHealth == 100)
     {
-        cout << "Health: " << currentHealth << endl;
+        gotoxy(81, 5);
     }
     else
     {
-        cout << "Health:  " << currentHealth << endl;
+        gotoxy(84 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
     }
-    */
-    if (previousHealth != currentHealth)
+    cout << previousHealth << '%';
+    if (previousHealth > currentHealth)
     {
         setColor(0x88);
-        if (previousHealth == 100)
+        for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
         {
-            gotoxy(81, 5);
+            gotoxy(83, 5 + i);
+            cout << c254;
         }
-        else
-        {
-            gotoxy(84 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
-        }
-        cout << previousHealth << '%';
-        if (previousHealth > currentHealth)
-        {
-            setColor(0x88);
-            for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
-            {
-                gotoxy(83, 5 + i);
-                cout << c254;
-            }
-        }
-        else if ((previousHealth < currentHealth))
-        {
-            setColor(0x44);
-            for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--)
-            {
-                gotoxy(83, 5 + i);
-                cout << c254;
-            }
-        }
-        setColor(0x84);
-        gotoxy(84 - digitCount(currentHealth), 5 + (100 - currentHealth) * 20 / 100);
-        cout << currentHealth << '%';
-        previousHealth = currentHealth;
     }
+    else if ((previousHealth < currentHealth))
+    {
+        setColor(0x44);
+        for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--)
+        {
+            gotoxy(83, 5 + i);
+            cout << c254;
+        }
+    }
+    setColor(0x84);
+    gotoxy(84 - digitCount(currentHealth), 5 + (100 - currentHealth) * 20 / 100);
+    cout << currentHealth << '%';
+    previousHealth = currentHealth;
     setColor(0x87);
     gotoxy(82, 1);
     cout << "Score: " << score;
     setColor(0x17);
-}
-int main()
-{
-    changeMazeCharacters(maze1);
-    changeMazeCharacters(maze2);
-    changeMazeCharacters(maze3);
-    changeMazeCharacters(maze4);
-    int choice = 0;
-    consoleCursor(false);
-    while (choice != 2)
-    {
-        system("cls");
-        printLogo();
-        printMenuItems(12, menuItems, 3);
-        choice = takeChoice(12, 3, 0x3);
-        if (choice == 0)
-        {
-            cin.sync();
-            selectPlane();
-            startGame();
-        }
-    }
 }
 void printPlaneInfo(int x, int y, int index)
 {
@@ -676,6 +707,7 @@ void init()
     currentHealth = 100;
     previousHealth = 0;
     mazeNumber = 0;
+    previousMazeNumber = 0;
     score = 0;
     setColor(0x22);
     for (int i = 0; i < 30; i++)
@@ -685,6 +717,10 @@ void init()
             screen[i][j] = maze1[i][j];
         }
     }
+    drawStatsWindow();
+}
+void drawStatsWindow()
+{
     setColor(0x88);
     for (int i = 0; i < 30; i++) // stats window
     {
@@ -695,7 +731,7 @@ void init()
         }
     }
     setColor(0x84);
-    for (int i = 0; i < 20; i++) // health bar
+    for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--) // health bar
     {
         gotoxy(83, 5 + i);
         cout << (char)219;
@@ -866,6 +902,7 @@ void moveMaze()
         mazePos++;
         if (mazePos == 30)
         {
+            previousMazeNumber = mazeNumber;
             mazeNumber = rand() % 4;
             mazePos = 0;
         }
@@ -889,19 +926,23 @@ void moveMaze()
     }
     else if (mazeMoveCount == 4)
     {
-        copyCharArray(screen[0], screenSingleLine, 80);
-        for (int i = 30 - 1; i > 0; i--)
-        {
-            copyCharArray(screen[i], screen[i - 1], 80);
-        }
-        setColor(0x12);
-        for (int y = 0; y < 30; y++)
-        {
-            gotoxy(0, y);
-            cout << screen[y];
-        }
-        setColor(0x17);
+        drawMaze();
     }
+}
+void drawMaze()
+{
+    copyCharArray(screen[0], screenSingleLine, 80);
+    for (int i = 30 - 1; i > 0; i--)
+    {
+        copyCharArray(screen[i], screen[i - 1], 80);
+    }
+    setColor(0x12);
+    for (int y = 0; y < 30; y++)
+    {
+        gotoxy(0, y);
+        cout << screen[y];
+    }
+    setColor(0x17);
 }
 void handleRandomEnemySpawn()
 {
@@ -1623,7 +1664,7 @@ void movePlayerUp()
 }
 void movePlayerDown()
 {
-    if ((playerY <= 27&&currentPlayer==2)||(playerY <= 26))
+    if ((playerY <= 27 && currentPlayer == 2) || (playerY <= 26))
     {
         if (screen[playerY + 1][playerX - 2] == m || screen[playerY + 3][playerX - 1] == m)
         {
@@ -1702,6 +1743,44 @@ void handleRocketLasorBulletCollision()
         }
     }
 }
+void pauseMenu()
+{
+    int choice;
+    setColor(0);
+    system("cls");
+    printMenuItems(8, pauseMenuItems, 4);
+    while (1)
+    {
+        cin.sync();
+        while (kbhit()) // removeing the keypresses which are unprocessed
+        {
+            getch();
+        }
+        choice = takeChoice(8, 4, 0x3);
+        if (choice == 0)
+        {
+            // Drawing for smooth resume of game
+            drawMaze();
+            drawPlayer(playerX, playerY);
+            drawStatsWindow();
+            printStats();
+            return;
+        }
+        else if (choice == 1)
+        {
+            saveGame();
+        }
+        else if (choice == 2)
+        {
+            gameRunning = false;
+            return;
+        }
+        else if (choice == 3)
+        {
+            exit(0); // Terminate the game
+        }
+    }
+}
 void startGame()
 {
     init();
@@ -1755,7 +1834,14 @@ void startGame()
         moveLaserBullets();
         handleRocketLasorBulletCollision();
         // drawPlayer(playerX, playerY);
-        printStats();
+        if (previousHealth != currentHealth)
+        {
+            printStats();
+        }
+        if (GetAsyncKeyState(VK_ESCAPE))
+        {
+            pauseMenu();
+        }
         stopTime = clock();
         timeElapsed = double(stopTime - startTime);
         if (timeElapsed < 60)
