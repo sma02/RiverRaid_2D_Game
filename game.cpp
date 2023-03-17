@@ -490,25 +490,15 @@ void buildHanger()
     setColor(0x07);
 
     x = 92;
-    y = 21;
+    y = 22;
     printPlaneInfo(86, 5, 1);
-    setColor(0x0e); // plane2
-    gotoxy(x, y - 1);
-    cout << m;
-    setColor(0x07);
-    gotoxy(x - 2, y);
-    setColor(0x0e);
-    cout << s << s;
-    setColor(0x07);
-    cout << m;
-    setColor(0x0e);
-    cout << s << s;
-    setColor(0x07);
-    gotoxy(x, y + 1);
-    cout << m;
-    gotoxy(x - 1, y + 2);
-    setColor(0x0e);
-    cout << s << m << s;
+    setColor(0x07); // plane2
+    gotoxy(x - 2, y - 1);
+    cout << (char)205 << (char)202 << (char)206 << (char)202 << (char)205;
+    gotoxy(x, y);
+    cout << (char)186;
+    gotoxy(x - 1, y + 1);
+    cout << (char)205 << (char)202 << (char)205;
     setColor(0x07);
 
     x = 72;
@@ -536,7 +526,7 @@ void buildHanger()
 int handleBoxHighlight(int playerX, int playerY, int previousState)
 {
     int currentState = -1;
-    if (playerX >= 42 && playerX < 63 && playerY >= 21)
+    if (playerX >= 42 && playerX < 63 && playerY >= 17)
     {
         setColor(0x06);
         printPlaneInfo(44, 5, 0);
@@ -544,7 +534,7 @@ int handleBoxHighlight(int playerX, int playerY, int previousState)
         cout << "Press ENTER to Confirm";
         currentState = 1;
     }
-    else if (playerX >= 84 && playerX < 104 && playerY >= 21)
+    else if (playerX >= 84 && playerX < 104 && playerY >= 17)
     {
         setColor(0x06);
         printPlaneInfo(86, 5, 1);
@@ -552,7 +542,7 @@ int handleBoxHighlight(int playerX, int playerY, int previousState)
         cout << "Press ENTER to Confirm";
         currentState = 2;
     }
-    else if (playerX >= 64 && playerX < 83 && playerY >= 21)
+    else if (playerX >= 64 && playerX < 83 && playerY >= 17)
     {
         setColor(0x06);
         printPlaneInfo(66, 5, 2);
@@ -1518,26 +1508,6 @@ void printPlayer1(int x, int y)
 }
 void printPlayer2(int x, int y)
 {
-    /*char s = 205;
-    char t = 30;
-    setColor(0x1e);
-    gotoxy(x, y - 1);
-    cout << m;
-    setColor(0x17);
-    gotoxy(x - 2, y);
-    setColor(0x1e);
-    cout << s << s;
-    setColor(0x17);
-    cout << m;
-    setColor(0x1e);
-    cout << s << s;
-    setColor(0x17);
-    gotoxy(x, y + 1);
-    cout << m;
-    gotoxy(x - 1, y + 2);
-    setColor(0x1e);
-    cout << s << m << s;
-    setColor(0x17);*/
     setColor(0x1e);
     gotoxy(x - 2, y - 1);
     cout << (char)205 << (char)202 << (char)206 << (char)202 << (char)205;
@@ -1653,7 +1623,7 @@ void movePlayerUp()
 }
 void movePlayerDown()
 {
-    if (playerY <= 26)
+    if ((playerY <= 27&&currentPlayer==2)||(playerY <= 26))
     {
         if (screen[playerY + 1][playerX - 2] == m || screen[playerY + 3][playerX - 1] == m)
         {
@@ -1672,7 +1642,7 @@ void movePlayerLeft()
 {
     if (currentPlayer == 2)
     {
-        if (screen[playerY-1][playerX -3] != m)
+        if (screen[playerY - 1][playerX - 3] != m && screen[playerY][playerX - 3] != m)
         {
             erasePlayer(playerX, playerY);
             playerX--;
@@ -1691,11 +1661,23 @@ void movePlayerLeft()
 }
 void movePlayerRight()
 {
-    if (screen[playerY][playerX + 3] != m && screen[playerY + 2][playerX + 2] != m)
+    if (currentPlayer == 2)
     {
-        erasePlayer(playerX, playerY);
-        playerX++;
-        drawPlayer(playerX, playerY);
+        if (screen[playerY - 1][playerX + 3] != m && screen[playerY][playerX + 3] != m)
+        {
+            erasePlayer(playerX, playerY);
+            playerX++;
+            drawPlayer(playerX, playerY);
+        }
+    }
+    else
+    {
+        if (screen[playerY][playerX + 3] != m && screen[playerY + 2][playerX + 2] != m)
+        {
+            erasePlayer(playerX, playerY);
+            playerX++;
+            drawPlayer(playerX, playerY);
+        }
     }
 }
 void handleRocketLasorBulletCollision()
