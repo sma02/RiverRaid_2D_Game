@@ -29,6 +29,19 @@ char screenSingleLine[81];
 char c254 = 254;
 char c219 = 219;
 char m = 219;
+//logo
+char logo[11][45] = {
+    " 00000   0   0        0   000000   00000    ",
+    " 0   0   0    0      0    0        0   0    ",
+    " 00000   0     0    0     000000   00000    ",
+    " 0   0   0      0  0      0        0   0    ",
+    " 0    0  0       00       000000   0    0   ",
+    "                                            ",
+    "    00000     00000     0     0000          ",
+    "    0   0     0   0     0     0   0         ",
+    "    00000     00000     0     0   0         ",
+    "    0   0     0   0     0     0   0         ",
+    "    0    0    0   0     0     0000          "};
 // hanger
 char hanger[26][101] =
     {"****************************************************************************************************",
@@ -245,7 +258,7 @@ int currentCannonRocketCount = 0;
 
 int currentCannonCount = 0;
 
-string mainMenuItems[] = {"start game", "options", "exit"};
+string mainMenuItems[] = {"Continue game...", "New game", "exit"};
 string pauseMenuItems[] = {"resume", "save game", "exit to main menu", "exit"};
 
 // function prototypes
@@ -257,7 +270,7 @@ void setColor(short color);
 void consoleCursor(bool visibility);
 int takeChoice(int offset, int size, short color);
 string getStringAtxy(short int x, short int y);
-void printMenuItems(int offset, string items[], int arraySize);
+void printMenuItems(int offset, string items[], int startingIndex, int endingIndex);
 void movePointer(int previousPos, int pointerPos, int offset, short color);
 void copyCharArray(char arr1[], char arr2[], int size);
 int digitCount(int number);
@@ -296,6 +309,7 @@ void collisionHandling(int x, int y, char next);
 
 void moveMazeAndGameElements();
 void moveMaze();
+void printEmptyMaze();
 void drawMaze();
 void startGame();
 void pauseMenu();
@@ -305,8 +319,10 @@ void init();
 void printStats();
 void changeMazeCharacters(char theMaze[30][81]);
 void saveGame();
+bool isSaveGameExists();
 void loadGame();
 void loadMaze();
+void currentPlayerLaser(int currentPlayerType);
 string parseData(string line, int fieldNumber);
 void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar);
 void coordsArrayPush(fstream &file, int arrayX[], int arrayY[], int arraySize);
@@ -360,18 +376,68 @@ int main()
     changeMazeCharacters(maze4);
     int choice = 0;
     consoleCursor(false);
-    while (choice != 2)
+    while (1)
     {
         system("cls");
         printLogo();
-        printMenuItems(12, mainMenuItems, 3);
-        choice = takeChoice(12, 3, 0x3);
-        if (choice == 0)
+        if (isSaveGameExists())
         {
-            cin.sync();
-            selectPlane();
-            startGame();
+            printMenuItems(12, mainMenuItems, 0, 3);
+            choice = takeChoice(12, 3, 0x3);
+            if (choice == 0)
+            {
+                cin.sync();
+                init();
+                loadGame();
+                drawStatsWindow();
+                startGame();
+            }
+            else if (choice == 1)
+            {
+                cin.sync();
+                selectPlane();
+                printEmptyMaze();
+                init();
+                drawStatsWindow();
+                startGame();
+            }
+            else if (choice == 2)
+            {
+                exit(0);
+            }
         }
+        else
+        {
+            printMenuItems(12, mainMenuItems, 1, 3);
+            choice = takeChoice(12, 2, 0x3);
+            if (choice == 0)
+            {
+                cin.sync();
+                selectPlane();
+                printEmptyMaze();
+                init();
+                drawStatsWindow();
+                startGame();
+            }
+            else if (choice == 1)
+            {
+                exit(0);
+            }
+        }
+    }
+}
+bool isSaveGameExists()
+{
+    fstream file;
+    file.open("savegame.txt", ios::in);
+    if (file)
+    {
+        file.close();
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 void saveGame()
@@ -449,6 +515,7 @@ void loadGame()
         getline(file, line);
         coordsArrayPull(line, playerLaserX, playerLaserY, currentLaserBulletsCount);
         loadMaze();
+        currentPlayerLaser(currentPlayer);
     }
     file.close();
 }
@@ -783,21 +850,25 @@ void selectPlane()
         if (GetAsyncKeyState(VK_RETURN) && previousState != -1)
         {
             currentPlayer = previousState;
-            if (currentPlayer == 1)
-            {
-                currentPlayerLaserColor = 0x1e;
-            }
-            else if (currentPlayer == 2)
-            {
-                currentPlayerLaserColor = 0x1c;
-            }
-            else if (currentPlayer == 3)
-            {
-                currentPlayerLaserColor = 0x19;
-            }
+            currentPlayerLaser(currentPlayer);
             break;
         }
         Sleep(100);
+    }
+}
+void currentPlayerLaser(int currentPlayerType)
+{
+    if (currentPlayerType == 1)
+    {
+        currentPlayerLaserColor = 0x1e;
+    }
+    else if (currentPlayerType == 2)
+    {
+        currentPlayerLaserColor = 0x1c;
+    }
+    else if (currentPlayerType == 3)
+    {
+        currentPlayerLaserColor = 0x19;
     }
 }
 void playerMoveOnFootUp(int &playerX, int &playerY)
@@ -860,16 +931,17 @@ void init()
     mazeNumber = 0;
     previousMazeNumber = 0;
     score = 0;
+}
+void printEmptyMaze()
+{
     setColor(0x22);
-    /*for (int i = 0; i < 30; i++)
+    for (int i = 0; i < 30; i++)
     {
         for (int j = 0; j < 80; j++)
         {
             screen[i][j] = maze1[i][j];
         }
-    }*/
-    loadGame();
-    drawStatsWindow();
+    }
 }
 void drawStatsWindow()
 {
@@ -1893,16 +1965,16 @@ void pauseMenu()
 {
     int choice;
     setColor(0);
-    system("cls");
-    printMenuItems(8, pauseMenuItems, 4);
     while (1)
     {
+        printLogo();
+        printMenuItems(12, pauseMenuItems, 0, 4);
         cin.sync();
         while (kbhit()) // removeing the keypresses which are unprocessed
         {
             getch();
         }
-        choice = takeChoice(8, 4, 0x3);
+        choice = takeChoice(12, 4, 0x3);
         if (choice == 0)
         {
             // Drawing for smooth resume of game
@@ -1929,7 +2001,6 @@ void pauseMenu()
 }
 void startGame()
 {
-    init();
     drawPlayer(playerX, playerY);
     while (gameRunning)
     {
@@ -2020,13 +2091,14 @@ void handleEdges()
         }
     }
 }
-void printMenuItems(int offset, string items[], int arraySize)
+void printMenuItems(int offset, string items[], int startingIndex, int endingIndex)
 {
     setColor(0x3);
-    gotoxy(0, offset);
-    for (int i = 1; i <= arraySize; i++)
+    gotoxy(45, offset);
+    for (int i = startingIndex; i < endingIndex; i++)
     {
-        cout << "  " << i << ".\t" << items[i - 1] << endl;
+        gotoxy(45, offset+i);
+        cout << "  " << i + 1 - startingIndex << ".\t" << items[i];
     }
     setColor(0x7);
 }
@@ -2102,22 +2174,22 @@ void movePointer(int previousPos, int pointerPos, int offset, short color)
 {
     previousPos += offset;
     pointerPos += offset;
-    string temp = getStringAtxy(0, previousPos);
+    string temp = getStringAtxy(45, previousPos);
     setColor(color);
-    gotoxy(0, previousPos);
+    gotoxy(45, previousPos);
     cout << temp;
-    temp = getStringAtxy(0, pointerPos);
+    temp = getStringAtxy(45, pointerPos);
     setColor(0x30);
-    gotoxy(0, pointerPos);
+    gotoxy(45, pointerPos);
     cout << temp;
 }
 string getStringAtxy(short int x, short int y)
 {
-    char buffer[80];
+    char buffer[31];
     COORD position{x, y};
     DWORD dwChars;
-    ReadConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), buffer, 80, position, &dwChars);
-    buffer[dwChars] = '\0';
+    ReadConsoleOutputCharacterA(GetStdHandle(STD_OUTPUT_HANDLE), buffer, 31, position, &dwChars);
+    buffer[31] = '\0';
     string temp = buffer;
     return temp;
 }
@@ -2136,18 +2208,13 @@ void halt()
 }
 void printLogo()
 {
+    system("cls");
     setColor(0x3);
-    cout << " 00000   0   0        0   000000   00000    " << endl;
-    cout << " 0   0   0    0      0    0        0   0    " << endl;
-    cout << " 00000   0     0    0     000000   00000    " << endl;
-    cout << " 0   0   0      0  0      0        0   0    " << endl;
-    cout << " 0    0  0       00       000000   0    0   " << endl;
-    cout << "                                            " << endl;
-    cout << "    00000     00000     0     0000          " << endl;
-    cout << "    0   0     0   0     0     0   0         " << endl;
-    cout << "    00000     00000     0     0   0         " << endl;
-    cout << "    0   0     0   0     0     0   0         " << endl;
-    cout << "    0    0    0   0     0     0000          " << endl;
+    for(int y=0;y<11;y++)
+    {
+        gotoxy(40,y);
+        cout<<logo[y];
+    }
     setColor(0x7);
 }
 void setColor(short color)
