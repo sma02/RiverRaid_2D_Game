@@ -29,23 +29,21 @@ char screenSingleLine[81];
 char c254 = 254;
 char c219 = 219;
 char m = 219;
-//logo
+// logo
 char logo[16][54] = {
-".______       __  ____    ____  _______ .______      ",
-"|   _  \\     |  | \\   \\  /   / |   ____||   _  \\     ",
-"|  |_)  |    |  |  \\   \\/   /  |  |__   |  |_)  |    ",
-"|      /     |  |   \\      /   |   __|  |      /     ",
-"|  |\\  \\----.|  |    \\    /    |  |____ |  |\\  \\----.",
-"| _| `._____||__|     \\__/     |_______|| _| `._____|",
-"                                                     ",
-"   .______          ___       __   _______           ",
-"   |   _  \\        /   \\     |  | |       \\          ",
-"   |  |_)  |      /  ^  \\    |  | |  .--.  |         ",
-"   |      /      /  /_\\  \\   |  | |  |  |  |         ",
-"   |  |\\  \\----./  _____  \\  |  | |  '--'  |         ",
-"   | _| `._____/__/     \\__\\ |__| |_______/          "};
-                                                     
-                                                     
+    ".______       __  ____    ____  _______ .______      ",
+    "|   _  \\     |  | \\   \\  /   / |   ____||   _  \\     ",
+    "|  |_)  |    |  |  \\   \\/   /  |  |__   |  |_)  |    ",
+    "|      /     |  |   \\      /   |   __|  |      /     ",
+    "|  |\\  \\----.|  |    \\    /    |  |____ |  |\\  \\----.",
+    "| _| `._____||__|     \\__/     |_______|| _| `._____|",
+    "                                                     ",
+    "   .______          ___       __   _______           ",
+    "   |   _  \\        /   \\     |  | |       \\          ",
+    "   |  |_)  |      /  ^  \\    |  | |  .--.  |         ",
+    "   |      /      /  /_\\  \\   |  | |  |  |  |         ",
+    "   |  |\\  \\----./  _____  \\  |  | |  '--'  |         ",
+    "   | _| `._____/__/     \\__\\ |__| |_______/          "};
 
 /*char logo[11][45] = {
     " 00000   0   0        0   000000   00000    ",
@@ -339,6 +337,7 @@ void saveGame();
 bool isSaveGameExists();
 void loadGame();
 void loadMaze();
+void clearUnprocessedKeys();
 void currentPlayerLaser(int currentPlayerType);
 string parseData(string line, int fieldNumber);
 void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar);
@@ -681,7 +680,7 @@ void printStats()
         for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
         {
             gotoxy(93, 5 + i);
-            cout << c254<<c254;
+            cout << c254 << c254;
         }
     }
     else if ((previousHealth < currentHealth))
@@ -690,7 +689,7 @@ void printStats()
         for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--)
         {
             gotoxy(93, 5 + i);
-            cout << c254<<c254;
+            cout << c254 << c254;
         }
     }
     setColor(0x84);
@@ -968,7 +967,7 @@ void drawStatsWindow()
         for (int j = 80; j < 120; j++)
         {
             gotoxy(j, i);
-            cout << c254<<c254;
+            cout << c254 << c254;
         }
     }
     setColor(0x84);
@@ -1978,6 +1977,14 @@ void handleRocketLasorBulletCollision()
         }
     }
 }
+void clearUnprocessedKeys()
+{
+    cin.sync();
+    while (kbhit())
+    {
+        getch();
+    }
+}
 void pauseMenu()
 {
     int choice;
@@ -1986,11 +1993,7 @@ void pauseMenu()
     {
         printLogo();
         printMenuItems(16, pauseMenuItems, 0, 4);
-        cin.sync();
-        while (kbhit()) // removeing the keypresses which are unprocessed
-        {
-            getch();
-        }
+        clearUnprocessedKeys();
         choice = takeChoice(16, 4, 0x3);
         if (choice == 0)
         {
@@ -2007,6 +2010,7 @@ void pauseMenu()
         }
         else if (choice == 2)
         {
+            clearUnprocessedKeys();
             gameRunning = false;
             return;
         }
@@ -2114,7 +2118,7 @@ void printMenuItems(int offset, string items[], int startingIndex, int endingInd
     gotoxy(45, offset);
     for (int i = startingIndex; i < endingIndex; i++)
     {
-        gotoxy(45, offset+i);
+        gotoxy(45, offset + i);
         cout << "  " << i + 1 - startingIndex << ".\t" << items[i];
     }
     setColor(0x7);
@@ -2227,10 +2231,10 @@ void printLogo()
 {
     system("cls");
     setColor(0x3);
-    for(int y=0;y<16;y++)
+    for (int y = 0; y < 16; y++)
     {
-        gotoxy(38,y);
-        cout<<logo[y];
+        gotoxy(38, y);
+        cout << logo[y];
     }
     setColor(0x7);
 }
