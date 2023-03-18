@@ -131,14 +131,14 @@ char maze3[30][81] = {
     "***********                                                          ***********",
     "***********                                                          ***********",
     "***********                                                          ***********",
-    "*************                                                       ************",
-    "**************                                                     *************",
-    "***************                                                  ***************",
-    "****************                                                ****************",
-    "****************                                                ****************",
-    "****************                                                ****************",
-    "****************                                                ****************",
-    "**************                                                    **************",
+    "************                                                        ************",
+    "*************                                                      *************",
+    "**************                                                   ***************",
+    "***************                                                 ****************",
+    "***************                                                 ****************",
+    "***************                                                 ****************",
+    "***************                                                 ****************",
+    "**************                                                   ***************",
     "*************                                                      *************",
     "************                                                        ************",
     "***********                                                          ***********",
@@ -305,6 +305,10 @@ void init();
 void printStats();
 void changeMazeCharacters(char theMaze[30][81]);
 void saveGame();
+void loadGame();
+void loadMaze();
+string parseData(string line, int fieldNumber);
+void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar);
 void coordsArrayPush(fstream &file, int arrayX[], int arrayY[], int arraySize);
 // battleship function prototypes
 void printBattleShip(int x, int y);
@@ -395,6 +399,141 @@ void saveGame()
     }
     file.close();
 }
+void loadGame()
+{
+    fstream file;
+    char newline = '\n';
+    string line;
+    file.open("savegame.txt", ios::in);
+    if (file)
+    {
+        getline(file, line); // first line
+        currentPlayer = stoi(parseData(line, 1));
+        playerX = stoi(parseData(line, 2));
+        playerY = stoi(parseData(line, 3));
+
+        getline(file, line); // second line
+        previousMazeNumber = stoi(parseData(line, 1));
+        mazeNumber = stoi(parseData(line, 2));
+        mazePos = stoi(parseData(line, 3));
+
+        getline(file, line); // third line
+        currentHealth = stoi(parseData(line, 1));
+        score = stoi(parseData(line, 2));
+        mazeEnemyCount = stoi(parseData(line, 3));
+
+        getline(file, line); // fourth line
+        healthPowerUpVisibility = stoi(parseData(line, 1));
+        healthPowerupX = stoi(parseData(line, 2));
+        healthPowerupY = stoi(parseData(line, 3));
+        healthPowerUpRandomSpawnCount = stoi(parseData(line, 4));
+        healthPowerUpRandomSpawn = stoi(parseData(line, 5));
+        healthPowerupCount = stoi(parseData(line, 6));
+
+        // battleships block
+        getline(file, line);
+        coordsArrayPull(line, battleShipsX, battleShipsY, currentBattleShipsCount);
+        getline(file, line);
+        coordsArrayPull(line, battleShipRocketX, battleShipRocketY, currentBattleShipRocketsCount);
+        // helicopters block
+        getline(file, line);
+        coordsArrayPull(line, helicoptersX, helicoptersY, currenthelicoptersCount);
+        getline(file, line);
+        coordsArrayPull(line, helicopterBulletsX, helicopterBulletsY, currenthelicoptersBulletsCount);
+        // cannons block
+        getline(file, line);
+        coordsArrayPull(line, cannonX, cannonY, currentCannonCount);
+        getline(file, line);
+        coordsArrayPull(line, cannonRocketX, cannonRocketY, currentCannonRocketCount);
+        // player bullets block
+        getline(file, line);
+        coordsArrayPull(line, playerLaserX, playerLaserY, currentLaserBulletsCount);
+        loadMaze();
+    }
+    file.close();
+}
+void loadMaze()
+{
+    for (int i = 0; i <= mazePos; i++)
+    {
+        if (mazeNumber == 0)
+        {
+            copyCharArray(screenSingleLine, maze1[mazePos - i], 80);
+        }
+        else if (mazeNumber == 1)
+        {
+            copyCharArray(screenSingleLine, maze2[mazePos - i], 80);
+        }
+        else if (mazeNumber == 2)
+        {
+
+            copyCharArray(screenSingleLine, maze3[mazePos - i], 80);
+        }
+        else
+        {
+            copyCharArray(screenSingleLine, maze4[mazePos - i], 80);
+        }
+        copyCharArray(screen[i], screenSingleLine, 80);
+    }
+    for (int i = 0; i < 30 - mazePos; i++)
+    {
+        if (previousMazeNumber == 0)
+        {
+            copyCharArray(screenSingleLine, maze1[30 - i - 1], 80);
+        }
+        else if (previousMazeNumber == 1)
+        {
+            copyCharArray(screenSingleLine, maze2[30 - i - 1], 80);
+        }
+        else if (previousMazeNumber == 2)
+        {
+
+            copyCharArray(screenSingleLine, maze3[30 - i - 1], 80);
+        }
+        else
+        {
+            copyCharArray(screenSingleLine, maze4[30 - i - 1], 80);
+        }
+        copyCharArray(screen[i + mazePos], screenSingleLine, 80);
+    }
+    mazePos--;
+    drawMaze();
+}
+string parseData(string line, int fieldNumber)
+{
+    int initialPos = 0;
+    int finalPos = 0;
+    int fieldCount = 0;
+    string result = "";
+    for (int i = 0; i < line.length(); i++)
+    {
+        if (line[i] == ',')
+        {
+            fieldCount++;
+            if (fieldNumber != fieldCount)
+            {
+                initialPos = i + 1;
+            }
+            else
+            {
+                finalPos = i;
+            }
+        }
+        else if (i == line.length() - 1)
+        {
+            fieldCount++;
+            finalPos = i + 1;
+        }
+        if (fieldNumber == fieldCount)
+        {
+            for (int j = initialPos; j < finalPos; j++)
+            {
+                result += line[j];
+            }
+            return result;
+        }
+    }
+}
 void coordsArrayPush(fstream &file, int arrayX[], int arrayY[], int arraySize)
 {
     char newline = '\n';
@@ -402,6 +541,18 @@ void coordsArrayPush(fstream &file, int arrayX[], int arrayY[], int arraySize)
     for (int i = 0; i < arraySize; i++)
     {
         file << ',' << arrayX[i] << ',' << arrayY[i];
+    }
+}
+void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar)
+{
+    countVar = stoi(parseData(line, 1));
+    if (countVar)
+    {
+        for (int i = 0, j = 2; i < countVar; i++, j += 2)
+        {
+            arrayX[i] = stoi(parseData(line, j));
+            arrayY[i] = stoi(parseData(line, j + 1));
+        }
     }
 }
 void changeMazeCharacters(char theMaze[30][81])
@@ -710,13 +861,14 @@ void init()
     previousMazeNumber = 0;
     score = 0;
     setColor(0x22);
-    for (int i = 0; i < 30; i++)
+    /*for (int i = 0; i < 30; i++)
     {
         for (int j = 0; j < 80; j++)
         {
             screen[i][j] = maze1[i][j];
         }
-    }
+    }*/
+    loadGame();
     drawStatsWindow();
 }
 void drawStatsWindow()
@@ -778,17 +930,11 @@ int findElementIndex(int xVal, int yVal, int arr1[], int arr2[], int arrSize)
 {
     for (int i = 0; i < arrSize; i++)
     {
-        // gotoxy(0, 0);
-        // cout << emptyLine;
-        // gotoxy(0, 0);
-        // cout << "debug: " << arr1[i] << " " << arr2[i] << " " << xVal << " " << yVal << endl;
-        // system("pause");
         if (arr1[i] == xVal && arr2[i] == yVal)
         {
             return i;
         }
     }
-    // system("pause");
     return -1;
 }
 void addScore(int value)
@@ -910,11 +1056,11 @@ void moveMaze()
         {
             copyCharArray(screenSingleLine, maze1[mazePos], 80);
         }
-        else if (mazeNumber == 2)
+        else if (mazeNumber == 1)
         {
             copyCharArray(screenSingleLine, maze2[mazePos], 80);
         }
-        else if (mazeNumber == 3)
+        else if (mazeNumber == 2)
         {
 
             copyCharArray(screenSingleLine, maze3[mazePos], 80);
@@ -926,16 +1072,16 @@ void moveMaze()
     }
     else if (mazeMoveCount == 4)
     {
+        copyCharArray(screen[0], screenSingleLine, 80);
+        for (int i = 30 - 1; i > 0; i--)
+        {
+            copyCharArray(screen[i], screen[i - 1], 80);
+        }
         drawMaze();
     }
 }
 void drawMaze()
 {
-    copyCharArray(screen[0], screenSingleLine, 80);
-    for (int i = 30 - 1; i > 0; i--)
-    {
-        copyCharArray(screen[i], screen[i - 1], 80);
-    }
     setColor(0x12);
     for (int y = 0; y < 30; y++)
     {
@@ -947,7 +1093,7 @@ void drawMaze()
 void handleRandomEnemySpawn()
 {
     mazeEnemyCount++;
-    if (mazeEnemyCount == mazeRandomEnemy)
+    if (mazeEnemyCount >= mazeRandomEnemy)
     {
         int randomEnemy = rand() % 3;
         if (randomEnemy == 0)
