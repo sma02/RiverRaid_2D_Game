@@ -30,7 +30,24 @@ char c254 = 254;
 char c219 = 219;
 char m = 219;
 //logo
-char logo[11][45] = {
+char logo[16][54] = {
+".______       __  ____    ____  _______ .______      ",
+"|   _  \\     |  | \\   \\  /   / |   ____||   _  \\     ",
+"|  |_)  |    |  |  \\   \\/   /  |  |__   |  |_)  |    ",
+"|      /     |  |   \\      /   |   __|  |      /     ",
+"|  |\\  \\----.|  |    \\    /    |  |____ |  |\\  \\----.",
+"| _| `._____||__|     \\__/     |_______|| _| `._____|",
+"                                                     ",
+"   .______          ___       __   _______           ",
+"   |   _  \\        /   \\     |  | |       \\          ",
+"   |  |_)  |      /  ^  \\    |  | |  .--.  |         ",
+"   |      /      /  /_\\  \\   |  | |  |  |  |         ",
+"   |  |\\  \\----./  _____  \\  |  | |  '--'  |         ",
+"   | _| `._____/__/     \\__\\ |__| |_______/          "};
+                                                     
+                                                     
+
+/*char logo[11][45] = {
     " 00000   0   0        0   000000   00000    ",
     " 0   0   0    0      0    0        0   0    ",
     " 00000   0     0    0     000000   00000    ",
@@ -41,7 +58,7 @@ char logo[11][45] = {
     "    0   0     0   0     0     0   0         ",
     "    00000     00000     0     0   0         ",
     "    0   0     0   0     0     0   0         ",
-    "    0    0    0   0     0     0000          "};
+    "    0    0    0   0     0     0000          "};*/
 // hanger
 char hanger[26][101] =
     {"****************************************************************************************************",
@@ -382,8 +399,8 @@ int main()
         printLogo();
         if (isSaveGameExists())
         {
-            printMenuItems(12, mainMenuItems, 0, 3);
-            choice = takeChoice(12, 3, 0x3);
+            printMenuItems(16, mainMenuItems, 0, 3);
+            choice = takeChoice(16, 3, 0x3);
             if (choice == 0)
             {
                 cin.sync();
@@ -408,8 +425,8 @@ int main()
         }
         else
         {
-            printMenuItems(12, mainMenuItems, 1, 3);
-            choice = takeChoice(12, 2, 0x3);
+            printMenuItems(16, mainMenuItems, 1, 3);
+            choice = takeChoice(16, 2, 0x3);
             if (choice == 0)
             {
                 cin.sync();
@@ -651,11 +668,11 @@ void printStats()
     setColor(0x88);
     if (previousHealth == 100)
     {
-        gotoxy(81, 5);
+        gotoxy(92, 5);
     }
     else
     {
-        gotoxy(84 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
+        gotoxy(95 - digitCount(previousHealth), 5 + (100 - previousHealth) * 20 / 100);
     }
     cout << previousHealth << '%';
     if (previousHealth > currentHealth)
@@ -663,8 +680,8 @@ void printStats()
         setColor(0x88);
         for (int i = 0; i < (100 - currentHealth) * 20 / 100; i++)
         {
-            gotoxy(83, 5 + i);
-            cout << c254;
+            gotoxy(93, 5 + i);
+            cout << c254<<c254;
         }
     }
     else if ((previousHealth < currentHealth))
@@ -672,16 +689,16 @@ void printStats()
         setColor(0x44);
         for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--)
         {
-            gotoxy(83, 5 + i);
-            cout << c254;
+            gotoxy(93, 5 + i);
+            cout << c254<<c254;
         }
     }
     setColor(0x84);
-    gotoxy(84 - digitCount(currentHealth), 5 + (100 - currentHealth) * 20 / 100);
+    gotoxy(95 - digitCount(currentHealth), 5 + (100 - currentHealth) * 20 / 100);
     cout << currentHealth << '%';
     previousHealth = currentHealth;
     setColor(0x87);
-    gotoxy(82, 1);
+    gotoxy(92, 1);
     cout << "Score: " << score;
     setColor(0x17);
 }
@@ -948,20 +965,20 @@ void drawStatsWindow()
     setColor(0x88);
     for (int i = 0; i < 30; i++) // stats window
     {
-        for (int j = 80; j < 110; j++)
+        for (int j = 80; j < 120; j++)
         {
             gotoxy(j, i);
-            cout << c254;
+            cout << c254<<c254;
         }
     }
     setColor(0x84);
     for (int i = 20; i >= (100 - currentHealth) * 20 / 100; i--) // health bar
     {
-        gotoxy(83, 5 + i);
+        gotoxy(93, 5 + i);
         cout << (char)219;
     }
     setColor(0x84); // health text
-    gotoxy(81, 26);
+    gotoxy(91, 26);
     cout << "Health";
     setColor(0x17);
 }
@@ -1968,13 +1985,13 @@ void pauseMenu()
     while (1)
     {
         printLogo();
-        printMenuItems(12, pauseMenuItems, 0, 4);
+        printMenuItems(16, pauseMenuItems, 0, 4);
         cin.sync();
         while (kbhit()) // removeing the keypresses which are unprocessed
         {
             getch();
         }
-        choice = takeChoice(12, 4, 0x3);
+        choice = takeChoice(16, 4, 0x3);
         if (choice == 0)
         {
             // Drawing for smooth resume of game
@@ -2210,9 +2227,9 @@ void printLogo()
 {
     system("cls");
     setColor(0x3);
-    for(int y=0;y<11;y++)
+    for(int y=0;y<16;y++)
     {
-        gotoxy(40,y);
+        gotoxy(38,y);
         cout<<logo[y];
     }
     setColor(0x7);
