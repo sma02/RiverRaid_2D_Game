@@ -21,7 +21,7 @@ int mazeRandomEnemy = 30;
 double timeElapsed;
 clock_t startTime;
 clock_t stopTime;
-int mazePos = 0;
+int mazePos = 30-1;
 int mazeNumber = 0;
 int previousMazeNumber = 0;
 char screen[30][81];
@@ -541,20 +541,20 @@ void loadMaze()
     {
         if (mazeNumber == 0)
         {
-            copyCharArray(screenSingleLine, maze1[mazePos - i], 80);
+            copyCharArray(screenSingleLine, maze1[i], 80);
         }
         else if (mazeNumber == 1)
         {
-            copyCharArray(screenSingleLine, maze2[mazePos - i], 80);
+            copyCharArray(screenSingleLine, maze2[i], 80);
         }
         else if (mazeNumber == 2)
         {
 
-            copyCharArray(screenSingleLine, maze3[mazePos - i], 80);
+            copyCharArray(screenSingleLine, maze3[i], 80);
         }
         else
         {
-            copyCharArray(screenSingleLine, maze4[mazePos - i], 80);
+            copyCharArray(screenSingleLine, maze4[i], 80);
         }
         copyCharArray(screen[i], screenSingleLine, 80);
     }
@@ -562,20 +562,20 @@ void loadMaze()
     {
         if (previousMazeNumber == 0)
         {
-            copyCharArray(screenSingleLine, maze1[30 - i - 1], 80);
+            copyCharArray(screenSingleLine, maze1[i], 80);
         }
         else if (previousMazeNumber == 1)
         {
-            copyCharArray(screenSingleLine, maze2[30 - i - 1], 80);
+            copyCharArray(screenSingleLine, maze2[i], 80);
         }
         else if (previousMazeNumber == 2)
         {
 
-            copyCharArray(screenSingleLine, maze3[30 - i - 1], 80);
+            copyCharArray(screenSingleLine, maze3[i], 80);
         }
         else
         {
-            copyCharArray(screenSingleLine, maze4[30 - i - 1], 80);
+            copyCharArray(screenSingleLine, maze4[i], 80);
         }
         copyCharArray(screen[i + mazePos], screenSingleLine, 80);
     }
@@ -940,7 +940,7 @@ void init()
     currentCannonRocketCount = 0;
     currentLaserBulletsCount = 0;
     mazeEnemyCount = 0;
-    mazePos = 0;
+    mazePos = 30-1;
     mazeMoveCount = 0;
     currentHealth = 100;
     previousHealth = 0;
@@ -967,7 +967,7 @@ void drawStatsWindow()
         for (int j = 80; j < 120; j++)
         {
             gotoxy(j, i);
-            cout << c254 << c254;
+            cout << c254;
         }
     }
     setColor(0x84);
@@ -1142,20 +1142,20 @@ void moveMaze()
         }
         if (mazeNumber == 0)
         {
-            copyCharArray(screenSingleLine, maze1[mazePos], 80);
+            copyCharArray(screenSingleLine, maze1[30-mazePos-1], 80);
         }
         else if (mazeNumber == 1)
         {
-            copyCharArray(screenSingleLine, maze2[mazePos], 80);
+            copyCharArray(screenSingleLine, maze2[30-mazePos-1], 80);
         }
         else if (mazeNumber == 2)
         {
 
-            copyCharArray(screenSingleLine, maze3[mazePos], 80);
+            copyCharArray(screenSingleLine, maze3[30-mazePos-1], 80);
         }
         else
         {
-            copyCharArray(screenSingleLine, maze4[mazePos], 80);
+            copyCharArray(screenSingleLine, maze4[30-mazePos-1], 80);
         }
     }
     else if (mazeMoveCount == 4)
@@ -1572,11 +1572,11 @@ void moveHealthPowerupVertically()
 }
 void moveHealthPowerupHorizontally()
 {
-    if (screen[healthPowerupY][healthPowerupX - 1] == m)
+    if (screen[healthPowerupY][healthPowerupX - 1] == m||screen[healthPowerupY+1][healthPowerupX - 1] == m)
     {
         healthPowerUpMovement = true;
     }
-    else if (screen[healthPowerupY][healthPowerupX + 1] == m)
+    else if (screen[healthPowerupY][healthPowerupX + 1] == m ||screen[healthPowerupY+1][healthPowerupX + 1] == m)
     {
         healthPowerUpMovement = false;
     }
