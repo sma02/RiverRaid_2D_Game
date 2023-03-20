@@ -44,6 +44,21 @@ char logo[16][54] = {
     "   |      /      /  /_\\  \\   |  | |  |  |  |         ",
     "   |  |\\  \\----./  _____  \\  |  | |  '--'  |         ",
     "   | _| `._____/__/     \\__\\ |__| |_______/          "};
+// game over
+char gameOverLogo[16][54] = {
+    "  _______      ___      .___  ___.  _______   ",
+    " /  _____|    /   \\     |   \\/   | |   ____|  ",
+    "|  |  __     /  ^  \\    |  \\  /  | |  |__     ",
+    "|  | |_ |   /  /_\\  \\   |  |\\/|  | |   __|    ",
+    "|  |__| |  /  _____  \\  |  |  |  | |  |____   ",
+    " \\______| /__/     \\__\\ |__|  |__| |_______|  ",
+    "                                              ",
+    "  ______   ____    ____  _______ .______      ",
+    " /  __  \\  \\   \\  /   / |   ____||   _  \\     ",
+    "|  |  |  |  \\   \\/   /  |  |__   |  |_)  |    ",
+    "|  |  |  |   \\      /   |   __|  |      /     ",
+    "|  `--'  |    \\    /    |  |____ |  |\\  \\----.",
+    " \\______/      \\__/     |_______|| _| `._____|"};
 
 // hanger
 char hanger[26][101] =
@@ -387,6 +402,7 @@ string pauseMenuItems[] = {"resume", "save game", "exit to main menu", "exit"};
 
 // function prototypes
 void printLogo();
+void printGameOver();
 char getCharxy(short x, short y);
 void halt();
 void gotoxy(int x, int y);
@@ -435,17 +451,19 @@ void moveMazeAndGameElements();
 void moveMaze();
 void printEmptyMaze();
 void drawMaze();
-void startGame();
+void render();
 void pauseMenu();
 void drawStatsWindow();
 void handleEdges();
 void init();
 void printStats();
 void changeMazeCharacters();
-void saveGame();
 bool isSaveGameExists();
+void saveGame();
 void loadGame();
 void loadMaze();
+void printScore(int x, int y);
+void showAfterGameScreen();
 void clearUnprocessedKeys();
 void currentPlayerLaser(int currentPlayerType);
 string parseData(string line, int fieldNumber);
@@ -512,7 +530,7 @@ int main()
                 init();
                 loadGame();
                 drawStatsWindow();
-                startGame();
+                render();
             }
             else if (choice == 1)
             {
@@ -521,7 +539,7 @@ int main()
                 printEmptyMaze();
                 init();
                 drawStatsWindow();
-                startGame();
+                render();
             }
             else if (choice == 2)
             {
@@ -539,7 +557,7 @@ int main()
                 printEmptyMaze();
                 init();
                 drawStatsWindow();
-                startGame();
+                render();
             }
             else if (choice == 1)
             {
@@ -723,19 +741,6 @@ void changeMazeCharacters()
             }
         }
     }
-}
-void printDebugInfo()
-{
-    gotoxy(81, 0);
-    //   cout << "No of bullets:" << currentCannonBulletsCount << endl;
-    //  cout << "No of battleShips" << currentBattleShipsCount<<endl;
-    cout << "Health: " << currentHealth << endl;
-    gotoxy(61, 1);
-    cout << "Score: " << score;
-    gotoxy(61, 2);
-    cout << "helicopters:" << currenthelicoptersCount;
-    gotoxy(61, 3);
-    cout << "Bullets: " << currentLaserBulletsCount;
 }
 void printStats()
 {
@@ -1329,6 +1334,7 @@ void battleShipRocketCreate(int x, int y)
     battleShipRocketX[currentBattleShipRocketsCount] = x;
     battleShipRocketY[currentBattleShipRocketsCount] = y;
     currentBattleShipRocketsCount++;
+    Beep(2400,10);
 }
 void cannonRocketCreate(int x, int y)
 {
@@ -1356,6 +1362,7 @@ void cannonRocketCreate(int x, int y)
     cannonRocketY[currentCannonRocketCount] = y;
     cannonRocketType[currentCannonRocketCount] = 3;
     currentCannonRocketCount++;
+    Beep(2400,10);
 }
 void HelicopterBulletCreate(int x, int y)
 {
@@ -1365,6 +1372,7 @@ void HelicopterBulletCreate(int x, int y)
     helicopterBulletsX[currenthelicoptersBulletsCount] = x;
     helicopterBulletsY[currenthelicoptersBulletsCount] = y;
     currenthelicoptersBulletsCount++;
+    Beep(1900,2);
 }
 void createBattleShip()
 {
@@ -2079,8 +2087,9 @@ void pauseMenu()
         }
     }
 }
-void startGame()
+void render()
 {
+    clearUnprocessedKeys();
     drawPlayer(playerX, playerY);
     while (gameRunning)
     {
@@ -2130,7 +2139,6 @@ void startGame()
         handleRocketLasorBulletCollision();
         moveLaserBullets();
         handleRocketLasorBulletCollision();
-        // drawPlayer(playerX, playerY);
         if (previousHealth != currentHealth)
         {
             printStats();
@@ -2144,7 +2152,28 @@ void startGame()
         if (timeElapsed < 60)
             Sleep(60 - timeElapsed);
     }
+    if(currentHealth<=0)
+    {
+        showAfterGameScreen();
+    }
     setColor(0x7);
+}
+void showAfterGameScreen()
+{
+    clearUnprocessedKeys();
+    Sleep(100);
+    printGameOver();
+    printScore(52, 18);
+    halt();
+}
+
+void printScore(int x, int y)
+{
+    gotoxy(x, y);
+    setColor(0x5);
+    cout << "Your Score: ";
+    setColor(0x6);
+    cout << score;
 }
 void handleEdges()
 {
@@ -2283,8 +2312,14 @@ void consoleCursor(bool visibility)
 }
 void halt()
 {
-    cout << "Press any key to continue..." << endl;
-    getch();
+    int key;
+    gotoxy((120-24)/2,24);
+    setColor(0x2);
+    cout<<"Press ENTER to Continue";
+    do
+    {
+        key = getch();
+    } while (key != VK_RETURN);
 }
 void printLogo()
 {
@@ -2294,6 +2329,17 @@ void printLogo()
     {
         gotoxy(38, y);
         cout << logo[y];
+    }
+    setColor(0x7);
+}
+void printGameOver()
+{
+    setColor(0x3);
+    system("cls");
+    for (int y = 0; y < 16; y++)
+    {
+        gotoxy(38, y);
+        cout << gameOverLogo[y];
     }
     setColor(0x7);
 }
