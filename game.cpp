@@ -62,35 +62,9 @@ char gameOverLogo[16][54] = {
     " \\______/      \\__/     |_______|| _| `._____|"};
 
 // hanger
-char hanger[26][101] =
-    {"****************************************************************************************************",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                                                                                  *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "*                                   *                    *                    *                    *",
-     "****************************************************************************************************"};
+char hanger[26][101];
 // mazes
-char patterns[20][30][81]={
+char patterns[20][30][81] = {
     {"***********                                                          ***********",
      "***********                                                          ***********",
      "***********                                                          ***********",
@@ -376,16 +350,24 @@ void loadPatterns()
     file.open("gameData.txt", ios::in);
     if (file)
     {
+        for (int i = 0; i < 26; i++)//load hanger
+        {
+            getline(file, line);
+            for (int j = 0; j < line.length(); j++)
+            {
+                hanger[i][j] = line[j];
+            }
+        }
         getline(file, line);
-        numberOfPatterns = stoi(parseData(line, 1));
-        for (int i = 0; i < numberOfPatterns; i++)
+        numberOfPatterns = stoi(parseData(line, 1));//get number of patterns in data
+        for (int i = 0; i < numberOfPatterns; i++)//load the patterns
         {
             for (int j = 0; j < 30; j++)
             {
                 getline(file, line);
-                for(int k = 0; k < line.length(); k++)
+                for (int k = 0; k < line.length(); k++)
                 {
-                    patterns[i][j][k]=line[k];
+                    patterns[i][j][k] = line[k];
                 }
             }
         }
@@ -542,7 +524,7 @@ void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar)
 }
 void changeMazeCharacters()
 {
-    for (int patternNumber = 0; patternNumber < 4; patternNumber++)
+    for (int patternNumber = 0; patternNumber < numberOfPatterns; patternNumber++)
     {
         for (int y = 0; y < 30; y++)
         {
@@ -1029,7 +1011,7 @@ void moveMaze()
         if (mazePos == 30)
         {
             previousMazeNumber = mazeNumber;
-            mazeNumber = rand() % 4;
+            mazeNumber = rand() % numberOfPatterns;
             mazePos = 0;
         }
         copyCharArray(screenSingleLine, patterns[mazeNumber][30 - mazePos - 1], 80);
