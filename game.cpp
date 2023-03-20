@@ -310,7 +310,7 @@ int main()
         }
         else
         {
-            printMenuItems(16, mainMenuItems, 1, 3);
+            printMenuItems(15, mainMenuItems, 1, 3);
             choice = takeChoice(16, 2, 0x3);
             if (choice == 0)
             {
