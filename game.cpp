@@ -21,7 +21,7 @@ int mazeRandomEnemy = 30;
 double timeElapsed;
 clock_t startTime;
 clock_t stopTime;
-int mazePos = 30-1;
+int mazePos = 30 - 1;
 int mazeNumber = 0;
 int previousMazeNumber = 0;
 char screen[30][81];
@@ -45,18 +45,6 @@ char logo[16][54] = {
     "   |  |\\  \\----./  _____  \\  |  | |  '--'  |         ",
     "   | _| `._____/__/     \\__\\ |__| |_______/          "};
 
-/*char logo[11][45] = {
-    " 00000   0   0        0   000000   00000    ",
-    " 0   0   0    0      0    0        0   0    ",
-    " 00000   0     0    0     000000   00000    ",
-    " 0   0   0      0  0      0        0   0    ",
-    " 0    0  0       00       000000   0    0   ",
-    "                                            ",
-    "    00000     00000     0     0000          ",
-    "    0   0     0   0     0     0   0         ",
-    "    00000     00000     0     0   0         ",
-    "    0   0     0   0     0     0   0         ",
-    "    0    0    0   0     0     0000          "};*/
 // hanger
 char hanger[26][101] =
     {"****************************************************************************************************",
@@ -211,6 +199,127 @@ char maze4[30][81] = {
     "*************                                                      *************",
     "************                                                        ************"};
 
+char patterns[4][30][81] = {
+    {"***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********"},
+    {"***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "************                                                        ************",
+     "*************                                                      *************",
+     "**************                                                    **************",
+     "***************                                                  ***************",
+     "***************                                                  ***************",
+     "***************                                                  ***************",
+     "***************                                                  ***************",
+     "***************                                                  ***************",
+     "***************                                                  ***************",
+     "**************                                                    **************",
+     "************                                                        ************",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********"},
+    {"***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "************                                                        ************",
+     "*************                                                      *************",
+     "**************                                                   ***************",
+     "***************                                                 ****************",
+     "***************                                                 ****************",
+     "***************                                                 ****************",
+     "***************                                                 ****************",
+     "**************                                                   ***************",
+     "*************                                                      *************",
+     "************                                                        ************",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********",
+     "***********                                                          ***********"},
+    {"************                                                        ************",
+     "*************                                                      *************",
+     "**************                                                    **************",
+     "***************                                                  ***************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "****************                                                ****************",
+     "***************                                                  ***************",
+     "**************                                                    **************",
+     "*************                                                      *************",
+     "************                                                        ************"}};
 string planeInfo[] = {
     "F-32",
     "Lasor:Yellow",
@@ -332,7 +441,7 @@ void drawStatsWindow();
 void handleEdges();
 void init();
 void printStats();
-void changeMazeCharacters(char theMaze[30][81]);
+void changeMazeCharacters();
 void saveGame();
 bool isSaveGameExists();
 void loadGame();
@@ -386,10 +495,7 @@ void decreasePlayerHealth(int value);
 
 int main()
 {
-    changeMazeCharacters(maze1);
-    changeMazeCharacters(maze2);
-    changeMazeCharacters(maze3);
-    changeMazeCharacters(maze4);
+    changeMazeCharacters();
     int choice = 0;
     consoleCursor(false);
     while (1)
@@ -539,45 +645,11 @@ void loadMaze()
 {
     for (int i = 0; i <= mazePos; i++)
     {
-        if (mazeNumber == 0)
-        {
-            copyCharArray(screenSingleLine, maze1[i], 80);
-        }
-        else if (mazeNumber == 1)
-        {
-            copyCharArray(screenSingleLine, maze2[i], 80);
-        }
-        else if (mazeNumber == 2)
-        {
-
-            copyCharArray(screenSingleLine, maze3[i], 80);
-        }
-        else
-        {
-            copyCharArray(screenSingleLine, maze4[i], 80);
-        }
-        copyCharArray(screen[i], screenSingleLine, 80);
+        copyCharArray(screen[i], patterns[mazeNumber][i], 80);
     }
     for (int i = 0; i < 30 - mazePos; i++)
     {
-        if (previousMazeNumber == 0)
-        {
-            copyCharArray(screenSingleLine, maze1[i], 80);
-        }
-        else if (previousMazeNumber == 1)
-        {
-            copyCharArray(screenSingleLine, maze2[i], 80);
-        }
-        else if (previousMazeNumber == 2)
-        {
-
-            copyCharArray(screenSingleLine, maze3[i], 80);
-        }
-        else
-        {
-            copyCharArray(screenSingleLine, maze4[i], 80);
-        }
-        copyCharArray(screen[i + mazePos], screenSingleLine, 80);
+        copyCharArray(screen[i + mazePos], patterns[mazeNumber][i], 80);
     }
     mazePos--;
     drawMaze();
@@ -638,14 +710,17 @@ void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar)
         }
     }
 }
-void changeMazeCharacters(char theMaze[30][81])
+void changeMazeCharacters()
 {
-    for (int y = 0; y < 30; y++)
+    for (int patternNumber = 0; patternNumber < 4; patternNumber++)
     {
-        for (int x = 0; x < 80; x++)
+        for (int y = 0; y < 30; y++)
         {
-            if (theMaze[y][x] == '*')
-                theMaze[y][x] = m;
+            for (int x = 0; x < 80; x++)
+            {
+                if (patterns[patternNumber][y][x] == '*')
+                    patterns[patternNumber][y][x] = m;
+            }
         }
     }
 }
@@ -940,7 +1015,7 @@ void init()
     currentCannonRocketCount = 0;
     currentLaserBulletsCount = 0;
     mazeEnemyCount = 0;
-    mazePos = 30-1;
+    mazePos = 30 - 1;
     mazeMoveCount = 0;
     currentHealth = 100;
     previousHealth = 0;
@@ -955,7 +1030,7 @@ void printEmptyMaze()
     {
         for (int j = 0; j < 80; j++)
         {
-            screen[i][j] = maze1[i][j];
+            screen[i][j] = patterns[0][i][j];
         }
     }
 }
@@ -1140,23 +1215,7 @@ void moveMaze()
             mazeNumber = rand() % 4;
             mazePos = 0;
         }
-        if (mazeNumber == 0)
-        {
-            copyCharArray(screenSingleLine, maze1[30-mazePos-1], 80);
-        }
-        else if (mazeNumber == 1)
-        {
-            copyCharArray(screenSingleLine, maze2[30-mazePos-1], 80);
-        }
-        else if (mazeNumber == 2)
-        {
-
-            copyCharArray(screenSingleLine, maze3[30-mazePos-1], 80);
-        }
-        else
-        {
-            copyCharArray(screenSingleLine, maze4[30-mazePos-1], 80);
-        }
+        copyCharArray(screenSingleLine, patterns[mazeNumber][30 - mazePos - 1], 80);
     }
     else if (mazeMoveCount == 4)
     {
@@ -1572,11 +1631,11 @@ void moveHealthPowerupVertically()
 }
 void moveHealthPowerupHorizontally()
 {
-    if (screen[healthPowerupY][healthPowerupX - 1] == m||screen[healthPowerupY+1][healthPowerupX - 1] == m)
+    if (screen[healthPowerupY][healthPowerupX - 1] == m || screen[healthPowerupY + 1][healthPowerupX - 1] == m)
     {
         healthPowerUpMovement = true;
     }
-    else if (screen[healthPowerupY][healthPowerupX + 1] == m ||screen[healthPowerupY+1][healthPowerupX + 1] == m)
+    else if (screen[healthPowerupY][healthPowerupX + 1] == m || screen[healthPowerupY + 1][healthPowerupX + 1] == m)
     {
         healthPowerUpMovement = false;
     }
