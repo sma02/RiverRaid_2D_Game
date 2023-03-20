@@ -11,7 +11,7 @@ using namespace std;
 #define numOfBattleShips 10
 #define numOfHelicopters 10
 #define numOfCannons 10
-int numberOfPatterns = 1;
+int numberOfPatterns = 0;
 int mazeMoveCount = 0;
 int score = 0;
 int currentHealth;
@@ -64,37 +64,7 @@ char gameOverLogo[16][54] = {
 // hanger
 char hanger[26][101];
 // mazes
-char patterns[20][30][81] = {
-    {"***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********",
-     "***********                                                          ***********"}};
+char patterns[20][30][81];
 string planeInfo[] = {
     "F-32",
     "Lasor:Yellow",
@@ -161,8 +131,7 @@ string mainMenuItems[] = {"Continue game...", "New game", "exit"};
 string pauseMenuItems[] = {"resume", "save game", "exit to main menu", "exit"};
 
 // function prototypes
-void printLogo();
-void printGameOver();
+
 char getCharxy(short x, short y);
 void halt();
 void gotoxy(int x, int y);
@@ -174,7 +143,6 @@ void printMenuItems(int offset, string items[], int startingIndex, int endingInd
 void movePointer(int previousPos, int pointerPos, int offset, short color);
 void copyCharArray(char arr1[], char arr2[], int size);
 int digitCount(int number);
-void handleRandomEnemySpawn();
 
 void movePlayerUp();
 void movePlayerDown();
@@ -207,25 +175,28 @@ void removeLaserBullet(int i);
 int findElementIndex(int xVal, int yVal, int arr1[], int arr2[], int arrSize);
 void collisionHandling(int x, int y, char next);
 
-void loadPatterns();
-void moveMazeAndGameElements();
+void init();
 void moveMaze();
-void printEmptyMaze();
 void drawMaze();
 void render();
 void pauseMenu();
 void drawStatsWindow();
 void handleEdges();
-void init();
-void printStats();
-void changeMazeCharacters();
-bool isSaveGameExists();
 void saveGame();
 void loadGame();
 void loadMaze();
+void printLogo();
+void printGameOver();
 void printScore(int x, int y);
+void handleRandomEnemySpawn();
+void printEmptyMaze();
+void printStats();
 void showAfterGameScreen();
 void clearUnprocessedKeys();
+void changeMazeCharacters();
+void loadPatterns();
+void moveMazeAndGameElements();
+bool isSaveGameExists();
 void currentPlayerLaser(int currentPlayerType);
 string parseData(string line, int fieldNumber);
 void coordsArrayPull(string line, int arrayX[], int arrayY[], int &countVar);
@@ -350,7 +321,7 @@ void loadPatterns()
     file.open("gameData.txt", ios::in);
     if (file)
     {
-        for (int i = 0; i < 26; i++)//load hanger
+        for (int i = 0; i < 26; i++) // load hanger
         {
             getline(file, line);
             for (int j = 0; j < line.length(); j++)
@@ -359,8 +330,8 @@ void loadPatterns()
             }
         }
         getline(file, line);
-        numberOfPatterns = stoi(parseData(line, 1));//get number of patterns in data
-        for (int i = 0; i < numberOfPatterns; i++)//load the patterns
+        numberOfPatterns = stoi(parseData(line, 1)); // get number of patterns in data
+        for (int i = 0; i < numberOfPatterns; i++)   // load the patterns
         {
             for (int j = 0; j < 30; j++)
             {
