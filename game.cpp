@@ -20,6 +20,7 @@ bool gameRunning = false;
 int mazeEnemyCount = 0;
 int mazeRandomEnemy = 30;
 double timeElapsed;
+bool statsUpdateFlag = true;
 clock_t startTime;
 clock_t stopTime;
 int mazePos = 30 - 1;
@@ -545,6 +546,7 @@ void printStats()
     gotoxy(92, 1);
     cout << "Score: " << score;
     setColor(0x17);
+    statsUpdateFlag = false;
 }
 void printPlaneInfo(int x, int y, int index)
 {
@@ -776,6 +778,7 @@ void printPlayerOnFoot(int playerX, int playerY)
 void init()
 {
     gameRunning = true;
+    statsUpdateFlag = true;
     system("cls");
     currentBattleShipRocketsCount = 0;
     currentBattleShipsCount = 0;
@@ -873,10 +876,12 @@ int findElementIndex(int xVal, int yVal, int arr1[], int arr2[], int arrSize)
 void addScore(int value)
 {
     score += value;
+    statsUpdateFlag = true;
 }
 void decreasePlayerHealth(int value)
 {
     currentHealth -= value;
+    statsUpdateFlag = true;
     if (currentHealth <= 0)
     {
         gameRunning = false;
@@ -1372,6 +1377,7 @@ void healthPowerupHandler()
             {
                 currentHealth = 100;
             }
+            statsUpdateFlag = true;
             healthPowerUpVisibility = false;
             eraseGeneric(healthPowerupX, healthPowerupY, 1, 1);
             healthPowerupY = 0;
@@ -1904,7 +1910,7 @@ void render()
         handleRocketLasorBulletCollision();
         moveLaserBullets();
         handleRocketLasorBulletCollision();
-        if (previousHealth != currentHealth)
+        if (statsUpdateFlag)
         {
             printStats();
         }
